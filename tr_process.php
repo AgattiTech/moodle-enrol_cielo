@@ -71,7 +71,6 @@ if ($paymentmethod == 'cc') {
 
     $courseid = optional_param('courseid', '0', PARAM_INT);
     $plugininstance = $DB->get_record('enrol', array('courseid' => $courseid, 'enrol' => 'cielo'));
-    $instval = optional_param('inst_val', '', PARAM_RAW);
 
     $params['courseid'] = $courseid;
     $params['instanceid'] = $plugininstance->id;
@@ -84,7 +83,7 @@ if ($paymentmethod == 'cc') {
     $params['amount'] = number_format($plugininstance->cost, 2);
     $params['amount'] = str_replace(',', '', $params['amount']);
     $params['cc_number'] = str_replace(' ','',optional_param('ccnumber', '', PARAM_RAW));
-    $params['cc_installment_quantity'] = optional_param('cc_installments', '', PARAM_RAW);
+    $params['cc_installment_quantity'] = optional_param('ccinstallments', '', PARAM_RAW);
     $params['cc_expiration'] = optional_param('ccvalid', '', PARAM_RAW);
     $params['cc_cvv'] = optional_param('cvv', '', PARAM_RAW);
     $params['cc_brand'] = optional_param('ccbrand', '', PARAM_RAW);
@@ -93,37 +92,6 @@ if ($paymentmethod == 'cc') {
 
     // Handle Credit Card Checkout.
     cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl);
-}
-
-if ($paymentmethod == 'boleto') {
-
-    $courseid = optional_param('courseid', '0', PARAM_INT);
-    $plugininstance = $DB->get_record('enrol', array('courseid' => $courseid, 'enrol' => 'pagseguro'));
-
-    $wholephone = optional_param('senderphonenumber', '', PARAM_RAW);
-
-    $params = [];
-    $params['courseid'] = $courseid;
-    $params['instanceid'] = $plugininstance->id;
-
-    $params['couponcode'] = optional_param('boleto_couponcode', '', PARAM_RAW);
-
-    $params['name'] = optional_param('sendername', '', PARAM_RAW);
-    $params['email'] = optional_param('senderemail', '', PARAM_RAW);
-    $params['phone_area'] = substr($wholephone, 1, 2);
-    $params['phone_number'] = trim(preg_replace("(\D)", "", substr($wholephone, 5)));
-    $params['doc_number'] = preg_replace("(\D)", "", optional_param('sendercpfcnpj', '', PARAM_RAW));
-    $params['doc_type'] = strlen($params['doc_number']) == 14 ? 'CNPJ' : 'CPF';
-    $params['currency'] = 'BRL';
-    $params['notification_url'] = new moodle_url('/enrol/pagseguro/tr_notification.php');
-    $params['item_desc'] = empty($course->fullname) ? 'Curso moodle' : mb_substr($course->fullname, 0, 100);
-    $params['item_amount'] = number_format($plugininstance->cost, 2);
-    $params['item_amount'] = str_replace(',', '', $params['item_amount']);
-    $params['item_qty'] = 1;
-    $params['sender_hash'] = optional_param('sender_hash', '', PARAM_RAW);
-    $params['plugininstance'] = $plugininstance;
-
-    pagseguro_transparent_boletocheckout($params, $email, $token, $baseurl);
 }
 
 /**
@@ -167,56 +135,6 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     cielo_handleenrolment($rec);
 
     redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'] )));
-}
-
-/**
- * Controller function of the boleto checkout
- *
- * @param array $params array of information about the order, gathered from the form
- * @param string $email Pagseguro seller email
- * @param string $token Pagseguro seller token
- * @param string $baseurl defines if uses sandbox or production environment
- *
- * @return void
- */
-function pagseguro_transparent_boletocheckout($params, $email, $token, $baseurl) {
-
-    // First we insert the order into the database, so the customer's info isn't lost.
-    $extraamount = pagseguro_transparent_checkcoupon($params);
-    
-    $params['extraamount'] = number_format($extraamount, 2);
-    $refid = pagseguro_transparent_insertorder($params, $email, $token);
-    $params['reference'] = $refid;
-    
-//    $myfile = fopen("/var/www/moodle/enrol/cielo/log_data.txt", "w") or die("Unable to open file!");
-//    $txt = var_export($params, true);
-//    fwrite($myfile, $txt);
-//    fclose($myfile);
-
-    $reqxml = pagseguro_transparent_boletoxml($params);
-
-    $url = $baseurl."/v2/transactions?email={$email}&token={$token}";
-
-    $data = pagseguro_transparent_sendpaymentdetails($reqxml, $url);
-
-    if ($data == 'Unauthorized') {
-        $params['payment_status'] = STATUS_FAILURE;
-        pagseguro_transparent_updateorder($params, $email, $token);
-        redirect(new moodle_url('/enrol/pagseguro/return.php', array('id' => $params['courseid'], 'error' => 'unauthorized')));
-    }
-
-    if (count($data->error) > 0) {
-        $params['payment_status'] = STATUS_FAILURE;
-        pagseguro_transparent_updateorder($params, $email, $token);
-        redirect(new moodle_url('/enrol/pagseguro/return.php', array('id' => $params['courseid'], 'error' => 'generic')));
-    }
-
-    $transactionresponse = simplexml_load_string($data);
-
-    pagseguro_transparent_handletransactionresponse($transactionresponse);
-
-    redirect(new moodle_url('/enrol/pagseguro/return.php', array('id' => $params['courseid'] )));
-
 }
 
 /**

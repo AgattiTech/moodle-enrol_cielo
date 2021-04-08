@@ -32,6 +32,8 @@ require(['jquery'], function($){
 
     $(document).on('click', '#cc_submit', function() {
         if(ccValidateFields()){
+            var urlParams = new URLSearchParams(window.location.search);
+            $("#cc_courseid").val(urlParams.get('id'));
             $('#cielo_cc_form').submit();
         }
     });
