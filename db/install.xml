@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="enrol/cielo/db" VERSION="20120122" COMMENT="XMLDB file for Moodle enrol/cielo"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="enrol_cielo" COMMENT="Holds all known information about cielo transactions">
+      <FIELDS>
+      
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="merchant_id"/>
+        
+        <FIELD NAME="merchant_id" COMMENT="ID of the merchant" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="merchant_key"/>
+        
+        <FIELD NAME="merchant_key" COMMENT="Email of the business that will receive this trasnaction" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="merchant_id" NEXT="courseid"/>
+        
+        <FIELD NAME="courseid" COMMENT="ID of the course being bought" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="merchant_key" NEXT="userid"/>
+        
+        <FIELD NAME="userid" COMMENT="ID of the user that is buying" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="courseid" NEXT="instanceid"/>
+        
+        <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="userid" NEXT="date"/>
+        
+        <FIELD NAME="date" COMMENT="Date that the user requested the buy" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="instanceid" NEXT="type"/>
+        
+        <FIELD NAME="type" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="date" NEXT="status"/>
+        
+        <FIELD NAME="status" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="type" NEXT="tid"/>
+        
+        <FIELD NAME="tid" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="status" NEXT="proofofsale"/>
+        
+        <FIELD NAME="proofofsale" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="tid" NEXT="authcode"/>
+        
+        <FIELD NAME="authcode" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="proofofsale" NEXT="grossamount"/>
+        
+        <FIELD NAME="grossamount" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="paymentid" NEXT="discountedamount"/>
+        
+        <FIELD NAME="discountedamount" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="grossamount" NEXT="timeupdated"/>
+        
+        <FIELD NAME="timeupdated" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="discountedamount" NEXT="payment_status"/>
+        
+        <FIELD NAME="payment_status" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" PREVIOUS="timeupdated" NEXT="request_string"/>
+        
+        <FIELD NAME="request_string" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" COMMENT="Request string used for debugging" PREVIOUS="payment_status" /> 
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
