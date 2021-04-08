@@ -15,14 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Listens for Instant Payment Notification from pagseguro
+ * Listens for Instant Payment Notification from cielo
  *
- * This script waits for Payment notification from pagseguro,
- * then double checks that data by sending it back to pagseguro.
- * If pagseguro verifies this then it sets up the enrolment for that
+ * This script waits for Payment notification from cielo,
+ * then double checks that data by sending it back to cielo.
+ * If cielo verifies this then it sets up the enrolment for that
  * user.
  *
- * @package    enrol_pagseguro
+ * @package    enrol_cielo
  * @copyright  2010 Eugene Venter
  * @copyright  2015 Daniel Neis Araujo <danielneis@gmail.com>
  * @author     Eugene Venter - based on code by others
@@ -111,8 +111,15 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     $params['extraamount'] = number_format($extraamount, 2);
     $refid = cielo_insertorder($params, $merchantid, $merchantkey);
     $params['reference'] = $refid;
-
+    
+    $total = (float) $params['extraamount'] + (float) $params['amount'];
+    $params['total'] = $total;
     $reqjson = cielo_ccjson($params);
+    
+    $myfile = fopen("/var/www/moodle/enrol/cielo/log_data.txt", "w") or die("Unable to open file!");
+    $txt = var_export($params, true);
+    fwrite($myfile, $txt);
+    fclose($myfile);
 
     $url = $baseurl."/1/sales";
 
@@ -147,7 +154,7 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
  *
  * @return void
  */
-function pagseguro_transparent_notificationrequest($notificationcode, $email, $token, $baseurl) {
+function cielo_transparent_notificationrequest($notificationcode, $email, $token, $baseurl) {
 
     $url = $baseurl."/v3/transactions/notifications/{$notificationcode}?email={$email}&token={$token}";
 
@@ -162,9 +169,9 @@ function pagseguro_transparent_notificationrequest($notificationcode, $email, $t
 
     $transaction = simplexml_load_string($data);
 
-    $rec = pagseguro_transparent_handletransactionresponse($transaction);
+    $rec = cielo_transparent_handletransactionresponse($transaction);
 
-    pagseguro_transparent_handleenrolment($rec);
+    cielo_transparent_handleenrolment($rec);
 
 }
 
@@ -180,7 +187,7 @@ function cielo_checkcoupon($params) {
             if ($coupon['data']['coupontype'] == 'value') {
                 $extraamount = -1 * $couponvalue;
             } else {
-                $extraamount = -1 * (($couponvalue / 100) * $params['item_amount']);
+                $extraamount = -1 * (($couponvalue / 100) * $params['amount']);
             }
             return $extraamount;
         } else {
@@ -201,6 +208,12 @@ function cielo_checkcoupon($params) {
  */
 function cielo_sendpaymentdetails($json, $url, $merchantid, $merchantkey) {
 
+    $d = array($json,$url);
+    $myfile = fopen("/var/www/moodle/enrol/cielo/log_req.txt", "w") or die("Unable to open file!");
+    $txt = var_export($d, true);
+    fwrite($myfile, $txt);
+    fclose($myfile);
+    
     $curl = curl_init();
 
     curl_setopt_array($curl, array(
@@ -223,6 +236,11 @@ function cielo_sendpaymentdetails($json, $url, $merchantid, $merchantkey) {
     $data = curl_exec($curl);
 
     curl_close($curl);
+    
+    $myfile = fopen("/var/www/moodle/enrol/cielo/log_res.txt", "w") or die("Unable to open file!");
+    $txt = var_export($data, true);
+    fwrite($myfile, $txt);
+    fclose($myfile);
 
     return $data;
 
@@ -231,6 +249,14 @@ function cielo_sendpaymentdetails($json, $url, $merchantid, $merchantkey) {
 function cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $merchantkey) {
 
     $url = $baseurl.'/1/sales/'.$transactionresponse->Payment->PaymentId.'/capture';
+    
+    $d = array($url, $transactionresponse);
+    
+    $myfile = fopen("/var/www/moodle/enrol/cielo/log_reqcapture.txt", "w") or die("Unable to open file!");
+    $txt = var_export($d, true);
+    fwrite($myfile, $txt);
+    fclose($myfile);
+    
     $curl = curl_init();
 
     curl_setopt_array($curl, array(
@@ -254,12 +280,17 @@ function cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $me
 
     curl_close($curl);
     
+    $myfile = fopen("/var/www/moodle/enrol/cielo/log_rescapture.txt", "w") or die("Unable to open file!");
+    $txt = var_export($data, true);
+    fwrite($myfile, $txt);
+    fclose($myfile);
+    
     return $data;
     
 }
 
 /**
- * Inserts preliminary order information into enrol_pagseguro table.
+ * Inserts preliminary order information into enrol_cielo table.
  *
  * @param array $params information about the order, gathered from the form
  * @param string $email Pagseguro seller email
@@ -285,9 +316,9 @@ function cielo_insertorder($params, $merchantid, $merchantkey) {
 }
 
 /**
- * Updates the order information in enrol_pagseguro table.
+ * Updates the order information in enrol_cielo table.
  *
- * @param array $params information about the order, gathered from the form or pagseguro notification
+ * @param array $params information about the order, gathered from the form or cielo notification
  * @param string $email Pagseguro seller email
  * @param string $token Pagseguro seller token
  *
@@ -306,7 +337,7 @@ function cielo_updateorder($params, $merchantid, $merchantkey) {
     $rec->date = date("Y-m-d");
     $rec->payment_status = $params['payment_status'];
 
-    $DB->update_record("enrol_pagseguro", $rec);
+    $DB->update_record("enrol_cielo", $rec);
 
 }
 
@@ -416,13 +447,13 @@ function cielo_handleenrolment($rec) {
 }
 
 /**
- * Builds the xml to send bank ticket request to pagseguro
+ * Builds the xml to send bank ticket request to cielo
  *
  * @param array $params fields from the form and plugin settings.
  *
  * @return string of data in xml format
  */
-function pagseguro_transparent_boletoxml($params) {
+function cielo_transparent_boletoxml($params) {
     return "<? xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"yes\" ?>
         <payment>
                 <mode>default</mode>
@@ -461,7 +492,7 @@ function pagseguro_transparent_boletoxml($params) {
 }
 
 /**
- * Builds the xml to send credit card request to pagseguro
+ * Builds the xml to send credit card request to cielo
  *
  * @param array $params fields from the form and plugin settings.
  *
@@ -472,7 +503,7 @@ function cielo_ccjson($params) {
        "MerchantOrderId":"'.$params['reference'].'",
        "Payment":{
          "Type":"CreditCard",
-         "Amount":'.$params['amount'].',
+         "Amount":'.$params['total'] .',
          "Installments":'.$params['cc_installment_quantity'].',
          "SoftDescriptor":"'.$params['desc'].'",
          "CreditCard":{

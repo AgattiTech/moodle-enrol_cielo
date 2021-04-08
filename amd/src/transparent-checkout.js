@@ -27,6 +27,7 @@ require(['jquery'], function($){
 
     $("#cielo-payment-btn").on('click', function(){
         var couponcode = $("#cielo-payment-btn").data('coupon-code');
+        $('#cc_couponcode').val(couponcode);
         createMasks();
     });
 
