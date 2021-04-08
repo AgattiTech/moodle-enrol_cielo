@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Adds new instance of enrol_pagseguro to specified course or edits current instance.
+ * Adds new instance of enrol_cielo to specified course or edits current instance.
  *
- * @package    enrol_pagseguro
+ * @package    enrol_cielo
  * @copyright  2020 Daniel Neis Araujo <danielneis@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,12 +27,12 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir.'/formslib.php');
 
 /**
- * Adds new instance of enrol_pagseguro to specified course or edits current instance.
+ * Adds new instance of enrol_cielo to specified course or edits current instance.
  *
  * @copyright  2020 Daniel Neis Araujo <danielneis@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrol_pagseguro_edit_form extends moodleform {
+class enrol_cielo_edit_form extends moodleform {
 
     /**
      * Creates edit form for single course enrolment settings.
@@ -44,21 +44,21 @@ class enrol_pagseguro_edit_form extends moodleform {
 
         list($instance, $plugin, $context) = $this->_customdata;
 
-        $mform->addElement('header', 'header', get_string('pluginname', 'enrol_pagseguro'));
+        $mform->addElement('header', 'header', get_string('pluginname', 'enrol_cielo'));
 
         $mform->addElement('text', 'name', get_string('custominstancename', 'enrol'));
         $mform->setType('name', PARAM_TEXT);
 
         $options = array(ENROL_INSTANCE_ENABLED  => get_string('yes'),
                          ENROL_INSTANCE_DISABLED => get_string('no'));
-        $mform->addElement('select', 'status', get_string('status', 'enrol_pagseguro'), $options);
+        $mform->addElement('select', 'status', get_string('status', 'enrol_cielo'), $options);
         $mform->setDefault('status', $plugin->get_config('status'));
 
-        $mform->addElement('text', 'cost', get_string('cost', 'enrol_pagseguro'), array('size' => 4));
+        $mform->addElement('text', 'cost', get_string('cost', 'enrol_cielo'), array('size' => 4));
         $mform->setType('cost', PARAM_RAW);
         $mform->setDefault('cost', $plugin->get_config('cost'));
 
-        $mform->addElement('select', 'currency', get_string('currency', 'enrol_pagseguro'),
+        $mform->addElement('select', 'currency', get_string('currency', 'enrol_cielo'),
                            \get_string_manager()->get_list_of_currencies());
         $mform->setDefault('currency', $plugin->get_config('currency'));
 
@@ -67,22 +67,22 @@ class enrol_pagseguro_edit_form extends moodleform {
         } else {
             $roles = get_default_enrol_roles($context, $plugin->get_config('roleid'));
         }
-        $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_pagseguro'), $roles);
+        $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_cielo'), $roles);
         $mform->setDefault('roleid', $plugin->get_config('roleid'));
 
         $options = ['optional' => true, 'defaultunit' => 86400];
-        $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_pagseguro'), $options);
+        $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_cielo'), $options);
         $mform->setDefault('enrolperiod', $plugin->get_config('enrolperiod'));
-        $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_pagseguro');
+        $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_cielo');
 
         $options = ['optional' => true];
-        $mform->addElement('date_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_pagseguro'), $options);
+        $mform->addElement('date_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_cielo'), $options);
         $mform->setDefault('enrolstartdate', 0);
-        $mform->addHelpButton('enrolstartdate', 'enrolstartdate', 'enrol_pagseguro');
+        $mform->addHelpButton('enrolstartdate', 'enrolstartdate', 'enrol_cielo');
 
-        $mform->addElement('date_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_pagseguro'), $options);
+        $mform->addElement('date_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_cielo'), $options);
         $mform->setDefault('enrolenddate', 0);
-        $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_pagseguro');
+        $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_cielo');
 
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
@@ -107,11 +107,11 @@ class enrol_pagseguro_edit_form extends moodleform {
 
         if ($data['status'] == ENROL_INSTANCE_ENABLED) {
             if (!empty($data['enrolenddate']) and $data['enrolenddate'] < $data['enrolstartdate']) {
-                $errors['enrolenddate'] = get_string('enrolenddaterror', 'enrol_pagseguro');
+                $errors['enrolenddate'] = get_string('enrolenddaterror', 'enrol_cielo');
             }
 
             if (!is_numeric($data['cost'])) {
-                $errors['cost'] = get_string('costerror', 'enrol_pagseguro');
+                $errors['cost'] = get_string('costerror', 'enrol_cielo');
 
             }
         }

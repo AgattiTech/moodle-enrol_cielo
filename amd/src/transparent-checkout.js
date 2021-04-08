@@ -23,29 +23,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-var brandName = '';
-var ghash = '';
-
 require(['jquery'], function($){
 
     $("#cielo-payment-btn").on('click', function(){
         var couponcode = $("#cielo-payment-btn").data('coupon-code');
+        createMasks();
     });
 
-    $(document).on('submit', '#cielo_boleto_form', function(e) {
-        if(boletoValidateFields()){
-            $("#cielo_boleto_form input[name=sender_hash]").val(ghash);
-            var urlParams = new URLSearchParams(window.location.search);
-            $("#boleto_courseid").val(urlParams.get('id'));
-        } else {
-            e.preventDefault();
-        }
-    });
     $(document).on('click', '#cc_submit', function() {
         if(ccValidateFields()){
-            var ccNum = $("input[name=ccnumber]").val().replace(/\s/g, '');
-            var ccCvv = $("input[name=cvv]").val();
-            var ccExp = $("input[name=ccvalid]").val().split("/");
+            $('#cielo_cc_form').submit();
         }
     });
 });

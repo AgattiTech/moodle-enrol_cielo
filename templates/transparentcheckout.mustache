@@ -49,7 +49,6 @@
 
 <div align="center">
 	<p>{{requestPayment}}</p>
-	<img src="https://p.simg.uol.com.br/out/cielo/i/botoes/pagamentos/99x61-pagar-assina.gif"><br /><br /><br />
 	<button type="button" id="cielo-payment-btn" class="btn btn-primary" data-coupon-code="" data-toggle="modal" data-target="#cieloModal"
 	style="border-radius:15px;box-shadow:0 1px 3px #666666;color:#ffffff;font-size:20px;padding:10px 20px;text-decoration:none;">
 	  {{buttonString}}
@@ -79,6 +78,12 @@
 	<div id="CREDIT_CARD" class="tab-pane fade show active" role="tabpanel" aria-labelledby="CREDIT_CARD" >
 		<form id="cielo_cc_form" action="cielo/tr_process.php" method="POST">
 			<br />
+			<div class="form-group">
+				<div class="col-xs-12 col-xl-12 error" id="ccName-error"></div>
+				<label  for="ccbrand">Nome no Cartão:</label>
+				<input id="ccbrand" type="radio" name="ccbrand" value="Visa">
+				<input id="ccbrand" type="radio" name="ccbrand" value="Mastercard">
+			</div>
 			<div class="form-group">
 				<div class="col-xs-12 col-xl-12 error" id="ccName-error"></div>
 				<label  for="ccholdername">Nome no Cartão:</label>
@@ -168,5 +173,4 @@
 //	  </div> -->
 	</div>
   </div>
-  <script type="text/javascript" src="{{ js_url }}"></script>
 </div>

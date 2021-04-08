@@ -18,12 +18,12 @@
  * Event class to execute after payment is received.
  *
  *
- * @package    enrol_pagseguro
+ * @package    enrol_cielo
  * @copyright  2020 Daniel Neis Araujo <danielneis@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace enrol_pagseguro\event;
+namespace enrol_cielo\event;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -35,11 +35,11 @@ defined('MOODLE_INTERNAL') || die();
 class payment_receive extends \core\event\base {
 
     public static function get_name() {
-        return "pagseguro_payment_receive";
+        return "cielo_payment_receive";
     }
 
     public function get_description() {
-        return "pagseguro_payment_receive";
+        return "cielo_payment_receive";
     }
 
     public function get_legacy_logdata() {

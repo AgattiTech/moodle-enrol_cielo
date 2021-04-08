@@ -32,11 +32,11 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('enrol_cielo/usesandbox',
         get_string('usesandbox', 'enrol_cielo'), get_string('usesandboxdesc', 'enrol_cielo'), 0));
 
-    $settings->add(new admin_setting_configtext('enrol_cielo/cielobusiness',
-        get_string('businessemail', 'enrol_cielo'), get_string('businessemail_desc', 'enrol_cielo'), '', PARAM_TEXT));
+    $settings->add(new admin_setting_configtext('enrol_cielo/merchantid',
+        get_string('merchantid', 'enrol_cielo'), get_string('merchantid_desc', 'enrol_cielo'), '', PARAM_TEXT));
 
-    $settings->add(new admin_setting_configtext('enrol_cielo/cielotoken',
-        get_string('businesstoken', 'enrol_cielo'), get_string('businesstoken_desc', 'enrol_cielo'), '', PARAM_RAW));
+    $settings->add(new admin_setting_configtext('enrol_cielo/merchantkey',
+        get_string('merchantkey', 'enrol_cielo'), get_string('merchantkey_desc', 'enrol_cielo'), '', PARAM_RAW));
 
     $settings->add(new admin_setting_configcheckbox('enrol_cielo/mailstudents',
         get_string('mailstudents', 'enrol_cielo'), '', 0));

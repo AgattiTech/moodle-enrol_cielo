@@ -19,7 +19,7 @@
  *
  * This plugin allows you to set up paid courses.
  *
- * @package    enrol_pagseguro
+ * @package    enrol_cielo
  * @copyright  2020 Daniel Neis Araujo <danielneis@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,11 +27,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * pagseguro enrolment plugin implementation.
+ * cielo enrolment plugin implementation.
  * @author  Eugene Venter - based on code by Martin Dougiamas and others
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrol_pagseguro_plugin extends enrol_plugin {
+class enrol_cielo_plugin extends enrol_plugin {
 
     /**
      * Returns optional enrolment information icons.
@@ -46,7 +46,7 @@ class enrol_pagseguro_plugin extends enrol_plugin {
      * @return array of pix_icon
      */
     public function get_info_icons(array $instances) {
-        return array(new pix_icon('icon', get_string('pluginname', 'enrol_pagseguro'), 'enrol_pagseguro'));
+        return array(new pix_icon('icon', get_string('pluginname', 'enrol_cielo'), 'enrol_cielo'));
     }
 
     /**
@@ -96,14 +96,14 @@ class enrol_pagseguro_plugin extends enrol_plugin {
      * @return void
      */
     public function add_course_navigation($instancesnode, stdClass $instance) {
-        if ($instance->enrol !== 'pagseguro') {
+        if ($instance->enrol !== 'cielo') {
              throw new coding_exception('Invalid enrol instance type!');
         }
 
         $context = context_course::instance($instance->courseid);
-        if (has_capability('enrol/pagseguro:config', $context)) {
+        if (has_capability('enrol/cielo:config', $context)) {
             $urlparams = ['courseid' => $instance->courseid, 'id' => $instance->id];
-            $managelink = new moodle_url('/enrol/pagseguro/edit.php', $urlparams);
+            $managelink = new moodle_url('/enrol/cielo/edit.php', $urlparams);
             $instancesnode->add($this->get_instance_name($instance), $managelink, navigation_node::TYPE_SETTING);
         }
     }
@@ -116,16 +116,16 @@ class enrol_pagseguro_plugin extends enrol_plugin {
     public function get_action_icons(stdClass $instance) {
         global $OUTPUT;
 
-        if ($instance->enrol !== 'pagseguro') {
+        if ($instance->enrol !== 'cielo') {
             throw new coding_exception('invalid enrol instance!');
         }
         $context = context_course::instance($instance->courseid);
 
         $icons = array();
 
-        if (has_capability('enrol/pagseguro:config', $context)) {
+        if (has_capability('enrol/cielo:config', $context)) {
             $editlinkparams = ['courseid' => $instance->courseid, 'id' => $instance->id];
-            $editlink = new moodle_url("/enrol/pagseguro/edit.php", $editlinkparams);
+            $editlink = new moodle_url("/enrol/cielo/edit.php", $editlinkparams);
             $icons[] = $OUTPUT->action_icon($editlink, new pix_icon('t/edit', get_string('edit'), 'core', ['class' => 'icon']));
         }
 
@@ -140,11 +140,11 @@ class enrol_pagseguro_plugin extends enrol_plugin {
     public function get_newinstance_link($courseid) {
         $context = context_course::instance($courseid);
 
-        if (!has_capability('moodle/course:enrolconfig', $context) or !has_capability('enrol/pagseguro:config', $context)) {
+        if (!has_capability('moodle/course:enrolconfig', $context) or !has_capability('enrol/cielo:config', $context)) {
             return null;
         }
 
-        return new moodle_url('/enrol/pagseguro/edit.php', array('courseid' => $courseid));
+        return new moodle_url('/enrol/cielo/edit.php', array('courseid' => $courseid));
     }
 
     /**
@@ -194,58 +194,31 @@ class enrol_pagseguro_plugin extends enrol_plugin {
         }
 
         if (abs($cost) < 0.01) { // No cost, other enrolment methods (instances) should be used.
-            echo '<p>' . get_string('nocost', 'enrol_pagseguro') . '</p>';
+            echo '<p>' . get_string('nocost', 'enrol_cielo') . '</p>';
         } else {
 
             if (isguestuser()) { // Force login only for guest user, not real users with guest role.
                 echo '<div class="mdl-align">',
                      '<p>', get_string('paymentrequired'), '</p>',
                      '<p><b>', get_string('cost'), ': ', $instance->currency, ' ', $cost, '</b></p>',
-                     '<p>', get_string('needsignuporlogin', 'enrol_pagseguro'), '</p>',
+                     '<p>', get_string('needsignuporlogin', 'enrol_cielo'), '</p>',
                      '<p><a href="', new moodle_url('/login'), '">', get_string('loginsite'), '</a></p>',
                      '</div>';
-            } else if ( $this->get_config('transparentcheckout') == 1 ) {
+            } else {
 
                 $tcdata = array();
-                $tcdata["requestPayment"] = get_string('paymentrequired', 'enrol_pagseguro', $instance);
+                $tcdata["requestPayment"] = get_string('paymentrequired', 'enrol_cielo', $instance);
                 $tcdata["instanceName"] = $this->get_instance_name($instance);
                 $tcdata["instanceId"] = $instance->courseid;
-                $tcdata["buttonString"] = get_string('sendpaymentbutton', 'enrol_pagseguro');
+                $tcdata["buttonString"] = get_string('sendpaymentbutton', 'enrol_cielo');
                 $tcdata["cfgRoot"] = $CFG->wwwroot;
                 $tcdata["courseP"] = (float) $instance->cost;
-                $tcdata["getSessionUrl"] = new moodle_url('/enrol/pagseguro/tr_process.php');
+                $tcdata["getSessionUrl"] = new moodle_url('/enrol/cielo/tr_process.php');
 
-                if (get_config('enrol_pagseguro', 'usesandbox') == 1) {
-                    $tcdata['js_url'] =
-                        'https://stc.sandbox.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js';
-                } else {
-                    $tcdata['js_url'] = 'https://stc.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js';
-                }
-
-                $output = $OUTPUT->render_from_template("enrol_pagseguro/transparentcheckout", $tcdata);
+                $output = $OUTPUT->render_from_template("enrol_cielo/transparentcheckout", $tcdata);
 
                 return $output;
 
-            } else {
-
-                require_once("$CFG->dirroot/enrol/pagseguro/locallib.php");
-                // Sanitise some fields before building the pagseguro form.
-                $coursefullname  = format_string($course->fullname, true, array('context' => $context));
-                $courseshortname = $shortname;
-                $userfullname    = fullname($USER);
-                $userfirstname   = $USER->firstname;
-                $userlastname    = $USER->lastname;
-                $useraddress     = $USER->address;
-                $usercity        = $USER->city;
-                $instancename    = $this->get_instance_name($instance);
-
-                $form = new enrol_pagseguro_enrol_form($CFG->wwwroot.'/enrol/pagseguro/process.php', $instance);
-
-                ob_start();
-                $form->display();
-                echo $this->get_config('transparentcheckout');
-                $output = ob_get_clean();
-                return $OUTPUT->box($output);
             }
 
         }
@@ -272,7 +245,7 @@ class enrol_pagseguro_plugin extends enrol_plugin {
      */
     public function can_hide_show_instance($instance) {
         $context = context_course::instance($instance->courseid);
-        return has_capability('enrol/pagseguro:config', $context);
+        return has_capability('enrol/cielo:config', $context);
     }
 
 }
