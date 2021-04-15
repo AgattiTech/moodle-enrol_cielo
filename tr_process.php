@@ -35,6 +35,9 @@ require('../../config.php');
 require_once("lib.php");
 require_once($CFG->libdir.'/enrollib.php');
 require_once($CFG->libdir.'/externallib.php');
+require_once($CFG->dirroot.'/user/profile/lib.php');
+
+global $USER;
 
 require_login();
 
@@ -64,6 +67,42 @@ if (get_config('enrol_cielo', 'usesandbox') == 1) {
 
 $paymentmethod = optional_param('pay_method', '', PARAM_RAW);
 
+$usercpf = optional_param('cpf', '', PARAM_RAW);
+$addresscep = optional_param('cep', '', PARAM_RAW);
+$addresslogradouro = optional_param('logradouro', '', PARAM_RAW);
+$addressbairro = optional_param('bairro', '', PARAM_RAW);
+$addresscidade = optional_param('cidade', '', PARAM_RAW);
+$addressuf = optional_param('uf', '', PARAM_RAW);
+$addresscomplemento = optional_param('complemento', '', PARAM_RAW);
+$addressnumero = optional_param('numero', '', PARAM_RAW);
+    
+if($usercpf) {
+    $USER->profile_field_cpf = $usercpf;
+}
+if($addresscep) {
+    $USER->profile_field_cep = $addresscep;
+}
+if($addresslogradouro) {
+    $USER->profile_field_logradouro = $addresslogradouro;
+}
+if($addressbairro) {
+    $USER->profile_field_bairro = $addressbairro;
+}
+if($addresscidade) {
+    $USER->profile_field_cidade = $addresscidade;
+}
+if($addressuf) {
+    $USER->profile_field_uf = $addressuf;
+}
+if($addresscomplemento) {
+    $USER->profile_field_cpf = $addresscomplemento;
+}
+if($addressnumero) {
+    $USER->profile_field_numero = $addressnumero;
+}
+
+profile_save_data($USER);
+
 if ($paymentmethod == 'cc') {
 
     // Build array with all parameters from the form.
@@ -87,6 +126,15 @@ if ($paymentmethod == 'cc') {
     $params['cc_expiration'] = optional_param('ccvalid', '', PARAM_RAW);
     $params['cc_cvv'] = optional_param('cvv', '', PARAM_RAW);
     $params['cc_brand'] = optional_param('ccbrand', '', PARAM_RAW);
+    
+    $params['cpf'] = $usercpf;
+    $params['cep'] = $addresscep;
+    $params['logradouro'] = $addresslogradouro;
+    $params['bairro'] = $addressbairro;
+    $params['cidade'] = $addresscidade;
+    $params['uf'] = $addressuf;
+    $params['complemento'] = $addresscomplemento;
+    $params['numero'] = $addressnumero;
 
     $params['payment_status'] = STATUS_PENDING;
 

@@ -38,6 +38,45 @@ require(['jquery'], function($){
             $('#cielo_cc_form').submit();
         }
     });
+
+    $(document).on('focusout', '#billingpostcode', function() {
+        var cep = $('#billingpostcode').val().replace(/\D/g, '');
+        // Verifica se campo cep possui valor informado.
+        if (cep != "") {
+            // Expressão regular para validar o CEP.
+            var validacep = /^[0-9]{8}$/;
+            // Valida o formato do CEP.
+            if(validacep.test(cep)) {
+                // Preenche os campos com "..." enquanto consulta webservice.
+                $("#billingstreet").val("...");
+                $("#billingdistrict").val("...");
+                $("#billingcity").val("...");
+                $("#billingstate").val("...");
+                $("#ibge").val("...");
+                // Consulta o webservice viacep.com.br.
+                $.getJSON("https://viacep.com.br/ws/" + cep + "/json/?callback=?", function(dados) {
+                    if (!("erro" in dados)) {
+                        // Atualiza os campos com os valores da consulta.
+                        $("#billingstreet").val(dados.logradouro);
+                        $("#billingdistrict").val(dados.bairro);
+                        $("#billingcity").val(dados.localidade);
+                        $("#billingstate").val(dados.uf);
+                        $("#ibge").val(dados.ibge);
+                    } else {
+                        // CEP pesquisado não foi encontrado.
+                        limpa_formulário_cep();
+                        alert("CEP não encontrado.");
+                    }
+                });
+            } else {
+                limpa_formulário_cep();
+                alert("Formato de CEP inválido.");
+            }
+        } else {
+            // Cep sem valor, limpa formulário.
+            limpa_formulário_cep();
+        }
+    });
 });
 
 function createMasks(){
@@ -61,6 +100,17 @@ function createMasks(){
         $('.input-ccnumber').mask('0000 0000 0000 0000');
         $('.input-ccvalid').mask('00/0000');
         $('.input-cvv').mask('000');
+    });
+}
+
+function limpa_formulário_cep() {
+    // Limpa valores do formulário de cep.
+    require(['jquery'],function($){
+        $("#billingstreet").val("");
+        $("#billingdistrict").val("");
+        $("#billingcity").val("");
+        $("#billingstate").val("");
+        $("#ibge").val("");
     });
 }
 

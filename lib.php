@@ -222,7 +222,7 @@ class enrol_cielo_plugin extends enrol_plugin {
                 $tcdata["courseP"] = (float) $instance->cost;
                 $tcdata["getSessionUrl"] = new moodle_url('/enrol/cielo/tr_process.php');
                 $tcdata["installments"] = $installments;
-                $tcdata["dbg"] = var_export(json_encode($installments), true);
+                $tcdata["fullname"] = "$USER->firstname $USER->lastname";
                 if ($USER->cpf) {
                     $tcdata["cpf"] = $USER->cpf;
                 }
