@@ -359,6 +359,14 @@ function cielo_insertorder($params, $merchantid, $merchantkey) {
     $rec->grossamount = $params['amount'];
     $rec->discountedamount = $params['extraamount'];
     $rec->payment_status = STATUS_PENDING;
+    $rec->cpf = $params['cpf'];
+    $rec->cep = $params['cep'];
+    $rec->logradouro = $params['logradouro'];
+    $rec->bairro = $params['bairro'];
+    $rec->cidade = $params['cidade'];
+    $rec->uf = $params['uf'];
+    $rec->numero = $params['numero'];
+    $rec->complemento = $params['complemento'];
 
     return $DB->insert_record("enrol_cielo", $rec);
 }

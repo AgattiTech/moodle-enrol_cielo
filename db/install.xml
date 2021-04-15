@@ -45,17 +45,17 @@
         
         <FIELD NAME="cep" TYPE="char" LENGTH="14" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="cpf" NEXT="logradouro"/>
         
-        <FIELD NAME="logradouro" TYPE="char" LENGTH="14" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="cep" NEXT="bairro"/>
+        <FIELD NAME="logradouro" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="cep" NEXT="bairro"/>
         
-        <FIELD NAME="bairro" TYPE="char" LENGTH="14" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="logradouro" NEXT="cidade"/>
+        <FIELD NAME="bairro" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="logradouro" NEXT="cidade"/>
         
-        <FIELD NAME="cidade" TYPE="char" LENGTH="14" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="bairro" NEXT="uf"/>
+        <FIELD NAME="cidade" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="bairro" NEXT="uf"/>
         
-        <FIELD NAME="uf" TYPE="char" LENGTH="14" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="cidade" NEXT="complemento"/>
+        <FIELD NAME="uf" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="cidade" NEXT="complemento"/>
         
-        <FIELD NAME="complemento" TYPE="char" LENGTH="14" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="uf" NEXT="numero"/>
+        <FIELD NAME="complemento" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="uf" NEXT="numero"/>
         
-        <FIELD NAME="numero" TYPE="char" LENGTH="14" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="complemento"/>
+        <FIELD NAME="numero" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Zip code of the customer" PREVIOUS="complemento"/>
         
       </FIELDS>
       <KEYS>

@@ -27,7 +27,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2020082702;
+$plugin->version   = 2021041400;
 $plugin->requires  = 2018120300;
 $plugin->release   = '22';
 $plugin->component = 'enrol_cielo';
