@@ -61,12 +61,24 @@ class enrol_cielo_edit_form extends moodleform {
         $mform->addElement('select', 'currency', get_string('currency', 'enrol_cielo'),
                            \get_string_manager()->get_list_of_currencies());
         $mform->setDefault('currency', $plugin->get_config('currency'));
+        
+        
+        $installmentslist = array();
+        
+        for($i=1; $i <= 12; $i++){
+            $installmentslist[$i] = "$i x";
+        }
+        
+        $mform->addElement('select', 'customint1', get_string('installments', 'enrol_cielo'),
+                           $installmentslist);
+        $mform->setType('customint1', PARAM_INT);
 
         if ($instance->id) {
             $roles = get_default_enrol_roles($context, $instance->roleid);
         } else {
             $roles = get_default_enrol_roles($context, $plugin->get_config('roleid'));
         }
+        
         $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_cielo'), $roles);
         $mform->setDefault('roleid', $plugin->get_config('roleid'));
 

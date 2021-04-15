@@ -110,8 +110,10 @@
 			</div>
 			<div id="card-installments" class="form-group">
 			    <label class="col-sm-2 col-form-label" for="ccinstallments">Parcelas:</label>
-				<div class="col-sm-4">
-					<input id="ccinstallments" class="form-control" type="text" name="ccinstallments" />
+				<div class="col-sm-4"> {{#dbg}}{{value}}{{/dbg}}
+					<select id="ccinstallments" class="form-control" type="text" name="ccinstallments" >
+					    {{#installments}}<option value="{{value}}">{{text}}</option>{{/installments}}
+					</select>
 				</div>
 				
 			</div>

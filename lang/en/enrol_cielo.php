@@ -30,6 +30,7 @@ $string['merchantid_desc'] = 'The Merchant ID obtained from Cielo to be able to 
 $string['merchantkey'] = 'Cielo merchant key';
 $string['merchantkey_desc'] = 'The Merchant Key obtained from Cielo to be able to use the API';
 $string['cost'] = 'Enrol cost';
+$string['installments'] = 'Maximum installments';
 $string['costerror'] = 'The enrolment cost is not numeric';
 $string['costorkey'] = 'Please choose one of the following methods of enrolment.';
 $string['currency'] = 'Currency';

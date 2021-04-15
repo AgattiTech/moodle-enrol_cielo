@@ -205,6 +205,13 @@ class enrol_cielo_plugin extends enrol_plugin {
                      '<p><a href="', new moodle_url('/login'), '">', get_string('loginsite'), '</a></p>',
                      '</div>';
             } else {
+                $installments = array();
+                for($i = 1; $i <= $instance->customint1; $i++){
+                    $n = array();
+                    $n['value'] = $i;
+                    $n['text'] = $i."x";
+                    $installments[] = $n;
+                }
 
                 $tcdata = array();
                 $tcdata["requestPayment"] = get_string('paymentrequired', 'enrol_cielo', $instance);
@@ -214,7 +221,32 @@ class enrol_cielo_plugin extends enrol_plugin {
                 $tcdata["cfgRoot"] = $CFG->wwwroot;
                 $tcdata["courseP"] = (float) $instance->cost;
                 $tcdata["getSessionUrl"] = new moodle_url('/enrol/cielo/tr_process.php');
-
+                $tcdata["installments"] = $installments;
+                $tcdata["dbg"] = var_export(json_encode($installments), true);
+                if ($USER->cpf) {
+                    $tcdata["cpf"] = $USER->cpf;
+                }
+                if ($USER->logradouro) {
+                    $tcdata["logradouro"] = $USER->logradouro;
+                }
+                if ($USER->cep) {
+                    $tcdata["cep"] = $USER->cep;
+                }
+                if ($USER->numero) {
+                    $tcdata["numero"] = $USER->numero;
+                }
+                if ($USER->bairro) {
+                    $tcdata["bairro"] = $USER->bairro;
+                }
+                if ($USER->cidade) {
+                    $tcdata["cidade"] = $USER->cidade;
+                }
+                if ($USER->uf) {
+                    $tcdata["uf"] = $USER->uf;
+                }
+                if ($USER->complemento) {
+                    $tcdata["complemento"] = $USER->complemento;
+                }
                 $output = $OUTPUT->render_from_template("enrol_cielo/transparentcheckout", $tcdata);
 
                 return $output;
