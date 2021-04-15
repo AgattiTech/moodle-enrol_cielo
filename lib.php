@@ -46,7 +46,7 @@ class enrol_cielo_plugin extends enrol_plugin {
      * @return array of pix_icon
      */
     public function get_info_icons(array $instances) {
-        return array(new pix_icon('icon', get_string('pluginname', 'enrol_cielo'), 'enrol_cielo'));
+        return array(new pix_icon('cielo', get_string('pluginname', 'enrol_cielo'), 'enrol_cielo'));
     }
 
     /**
