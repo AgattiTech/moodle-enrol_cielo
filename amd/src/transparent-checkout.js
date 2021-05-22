@@ -31,11 +31,11 @@ require(['jquery'], function($){
         createMasks();
     });
 
-    $(document).on('click', '#cc_submit', function() {
-        if(ccValidateFields()){
+    $(document).on('click', '#cc_cielo_submit', function() {
+        if(ccCieloValidateFields()){
             var urlParams = new URLSearchParams(window.location.search);
             $("#cc_courseid").val(urlParams.get('id'));
-            $('#cielo_cc_form').submit();
+            //$('#cielo_cc_form').submit();
         }
     });
 
@@ -114,28 +114,39 @@ function limpa_formulário_cep() {
     });
 }
 
-function ccValidateFields(){
+function ccCieloValidateFields(){
+    
     var rtn = true;
-    require(['jquery'],function($){
+    require(['jquery'],function($) {
+        var re_ccvalid = /\d{2}\/\d{4}/gm;
+        var re_ccNumber = /\d{4}(\s\d{4}){3}/gm;
+        var re_cccvv = /\d{3}/gm;
+        if(!$('input[name=ccbrand]:checked', '#cielo_cc_form').val()){
+            rtn = false;
+            $("#ccBrand-error").html('Favor escolher bandeira do cartão');
+        } else{
+            $("#ccBrand-error").html('');
+        }
         if(!$("#ccName").val().trim()){
             rtn = false;
             $("#ccName-error").html('Favor preencher Nome corretamente');
         }else{
             $("#ccName-error").html('');
         }
-        if(!$("#ccNumber").val().trim()){
+        if(!re_ccNumber.test($("#ccNumber").val().trim())){
             rtn = false;
             $("#ccNumber-error").html('Favor preencher Número do cartão corretamente');
         }else{
             $("#ccNumber-error").html('');
         }
-        if(!$("#ccvalid").val().trim()){
+        if(!re_ccvalid.test($("#ccvalid").val().trim())){
+            console.log("reached here");
             rtn = false;
-            $("#ccvalid-error").html('Favor preencher Validade do cartão corretamente');
+            $("#ccvalid-error").html('Favor preencher Validade do cartão corretamente mm/aaaa');
         }else{
             $("#ccvalid-error").html('');
         }
-        if(!$("#cvv").val().trim()){
+        if(!re_cccvv.test($("#cvv").val().trim())){
             rtn = false;
             $("#cvv-error").html('Favor preencher CVV corretamente');
         }else{

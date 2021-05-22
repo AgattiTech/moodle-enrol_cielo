@@ -36,39 +36,40 @@ require('../../config.php');
 require_once("lib.php");
 require_once($CFG->libdir.'/enrollib.php');
 
-header("access-control-allow-origin: https://sandbox.pagseguro.uol.com.br");
+//header("access-control-allow-origin: https://sandbox.pagseguro.uol.com.br");
 
-define('COMMERCE_PAGSEGURO_STATUS_AWAITING', 1);
-define('COMMERCE_PAGSEGURO_STATUS_IN_ANALYSIS', 2);
-define('COMMERCE_PAGSEGURO_STATUS_PAID', 3);
-define('COMMERCE_PAGSEGURO_STATUS_AVAILABLE', 4);
-define('COMMERCE_PAGSEGURO_STATUS_DISPUTED', 5);
-define('COMMERCE_PAGSEGURO_STATUS_REFUNDED', 6);
-define('COMMERCE_PAGSEGURO_STATUS_CANCELED', 7);
-define('COMMERCE_PAGSEGURO_STATUS_DEBITED', 8); // Valor devolvido para o comprador.
-define('COMMERCE_PAGSEGURO_STATUS_WITHHELD', 9); // Retenção temporária.
-define('COMMERCE_PAYMENT_STATUS_SUCCESS', 'success');
-define('COMMERCE_PAYMENT_STATUS_FAILURE', 'failure');
-define('COMMERCE_PAYMENT_STATUS_PENDING', 'pending');
+define('SUCESSO', 4);
+define('SUCESSO2', 6);
+define('NAO_AUTORIZADO', 05);
+define('CARTAO_EXPIRADO', 57);
+define('CARTAO_BLOQUEADO', 78);
+define('TIME_OUT', 99);
+define('CARTAO_CANCELADO', 77);
+define('PROBLEMAS_COM_CARTAO', 70); // Valor devolvido para o comprador.
+define('STATUS_SUCCESS', 'success');
+define('STATUS_FAILURE', 'failure');
+define('STATUS_PENDING', 'pending');
 
-$plugin = enrol_get_plugin('pagseguro');
-$email = $plugin->get_config('pagsegurobusiness');
-$token = $plugin->get_config('pagsegurotoken');
+$plugin = enrol_get_plugin('cielo');
+$merchantid = $plugin->get_config('merchantid');
+$merchantkey = $plugin->get_config('merchantkey');
 
-if (get_config('enrol_pagseguro', 'usesandbox') == 1) {
-    $baseurl = 'https://ws.sandbox.pagseguro.uol.com.br';
+if (get_config('enrol_cielo', 'usesandbox') == 1) {
+    $baseurl = 'https://apisandbox.cieloecommerce.cielo.com.br';
+    $queryurl = 'https://apiquerysandbox.cieloecommerce.cielo.com.br';
 } else {
-    $baseurl = 'https://ws.pagseguro.uol.com.br';
+    $baseurl = 'https://api.cieloecommerce.cielo.com.br';
+    $queryurl = 'https://apiquery.cieloecommerce.cielo.com.br';
 }
 
 $notificationcode = optional_param('notificationCode', '', PARAM_RAW);
 $notificationtype = optional_param('notificationType', '', PARAM_RAW);
 
 if (!empty($notificationcode) && $notificationtype == 'transaction') {
-    pagseguro_transparent_notificationrequest($notificationcode, $email, $token, $baseurl);
+    cielo_notificationrequest($notificationcode, $merchantid, $merchantkey, $baseurl);
 }
 
-function pagseguro_transparent_notificationrequest($notificationcode, $email, $token, $baseurl) {
+function cielo_notificationrequest($notificationcode, $email, $token, $baseurl) {
 
     $url = $baseurl."/v3/transactions/notifications/{$notificationcode}?email={$email}&token={$token}";
 
