@@ -53,7 +53,7 @@ if (isset($SESSION->wantsurl)) {
 } else {
     $destination = "{$CFG->wwwroot}/course/view.php?id={$course->id}";
 }
-if($type == 'cc'){
+if($type == 'cc' || $type == 'recurrentcc'){
     switch($error){
         case SUCCESS:
         case SUCCESS2:
@@ -80,7 +80,7 @@ if($type == 'cc'){
         default:
             cielo_error($destination, $context, 'outro');
             break;
-}
+    }
 } elseif ($type == 'boleto') {
     cielo_boleto_success($destination, $context, $course, $urlboleto);
 } else{
@@ -99,7 +99,7 @@ function cielo_error($destination,$context, $errortype) {
 }
 
 function cielo_success($destination, $context, $course) {
-    global $PAGE;
+    global $OUTPUT, $PAGE;
     
     $fullname = format_string($course->fullname, true, array('context' => $context));
     if (is_enrolled($context, null, '', true)) { // TODO: use real pagseguro check.

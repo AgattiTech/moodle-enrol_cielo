@@ -162,11 +162,7 @@ if ($paymentmethod == 'cc') {
     $params['desc'] = "AcademiaOdont";
     $params['amount'] = number_format($plugininstance->cost, 2);
     $params['amount'] = str_replace(',', '', $params['amount']);
-    $params['cc_number'] = str_replace(' ','',optional_param('ccnumber', '', PARAM_RAW));
-    $params['cc_installment_quantity'] = optional_param('ccinstallments', '', PARAM_RAW);
-    $params['cc_expiration'] = optional_param('ccvalid', '', PARAM_RAW);
-    $params['cc_cvv'] = optional_param('cvv', '', PARAM_RAW);
-    $params['cc_brand'] = optional_param('ccbrand', '', PARAM_RAW);
+    $params['expiration'] = date("Y-m-d", strtotime('+5 days'));
     
     $params['cpf'] = $usercpf;
     $params['cep'] = $addresscep;
@@ -195,7 +191,7 @@ if ($paymentmethod == 'cc') {
     $params['amount'] = number_format($plugininstance->cost, 2);
     $params['amount'] = str_replace(',', '', $params['amount']);
     $params['cc_number'] = str_replace(' ','',optional_param('ccnumber', '', PARAM_RAW));
-    $params['expiration'] = date("Y-m-d", strtotime('+5 days'));
+    $params['cc_expiration'] = optional_param('ccvalid', '', PARAM_RAW);
     $params['cc_cvv'] = optional_param('cvv', '', PARAM_RAW);
     $params['cc_brand'] = optional_param('ccbrand', '', PARAM_RAW);
     
@@ -214,7 +210,7 @@ if ($paymentmethod == 'cc') {
 
     $params['payment_status'] = STATUS_PENDING;
 
-    cielo_recurrentcc_checkout();
+    cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl);
 
 }
 
@@ -330,6 +326,7 @@ function cielo_boleto_checkout($params, $merchantid, $merchantkey, $baseurl) {
  * @return void
  */
 function cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl) {
+    global $DB;
     //TODO: Store paymentID
     // First we insert the order into the database, so the customer's info isn't lost.
     $extraamount = cielo_checkcoupon($params);
@@ -357,10 +354,17 @@ function cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl
     if ($returncode != 4 && $returncode != 6) {
         $params['payment_status'] = STATUS_FAILURE;
         cielo_updateorder($params, $merchantid, $merchantkey);
-        redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'cc', 'errorcode' => $returncode)));
+        redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'recurrentcc', 'errorcode' => $returncode)));
     }
+    $params['paymentid'] = $transactionresponse->Payment->PaymentId;
+    $params['payment_status'] = STATUS_SUCCESS;
+    cielo_updateorder($params, $merchantid, $merchantkey);
+    
+    $rec = $DB->get_record('enrol_cielo', array('id' => $params['reference']) );
+    
+    cielo_handleenrolment($rec);
 
-    redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'cc' )));
+    redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'recurrentcc' )));
 }
 
 /**
@@ -586,7 +590,7 @@ function cielo_updateorder($params, $merchantid, $merchantkey) {
     $rec->courseid = $params['courseid'];
     $rec->userid = $USER->id;
     $rec->instanceid = $params['instanceid'];
-    $rec->tid = $params['paymentid'];
+    $rec->tid = $params['paymentid'] ?: null;
     $rec->date = date("Y-m-d");
     $rec->payment_status = $params['payment_status'];
 

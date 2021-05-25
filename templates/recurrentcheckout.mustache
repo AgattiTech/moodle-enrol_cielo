@@ -49,7 +49,7 @@
 
 <div align="center">
 	<p>{{requestPayment}}</p>
-	<button type="button" id="cielo-payment-btn" class="btn btn-primary" data-coupon-code="" data-toggle="modal" data-target="#cieloModal{{ instanceid }}"
+	<button type="button" id="cielo-payment-btn{{ instanceid }}" class="btn btn-primary cielo-payment-btn" data-coupon-code="" data-toggle="modal" data-target="#cieloModal{{ instanceid }}"
 	style="border-radius:15px;box-shadow:0 1px 3px #666666;color:#ffffff;font-size:20px;padding:10px 20px;text-decoration:none;">
 	  {{buttonString}}
 	</button>
@@ -64,7 +64,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
 	  <div class="modal-header">
-	    <h5 class="modal-title" id="exampleModalLabel">{{instanceId}} - {{instanceName}}</h5>
+	    <h5 class="modal-title" id="exampleModalLabel">{{instanceid}} - {{instanceName}}</h5>
 	    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 		  <span aria-hidden="true">&times;</span>
 		</button>
@@ -75,7 +75,7 @@
         </ul>
         <div class="tab-content">
 	        <div id="CREDIT_CARD" class="tab-pane fade show active" role="tabpanel" aria-labelledby="CREDIT_CARD" >
-		        <form id="cielo_cc_form" action="cielo/tr_process.php" method="POST">
+		        <form id="cielo_recurrentcc_form" action="cielo/tr_process.php" method="POST">
 			        <br />
 			        <div class="form-group">
 				        <div class="col-xs-12 col-xl-12 error" id="ccName-error"></div>
@@ -118,7 +118,7 @@
 				        <div class="col-xs-12 col-xl-12 error" id="billingnumber-error"></div>
 				        <label class="col-sm-2 col-form-label">CEP:</label>
 				        <div class="col-sm-6">
-					        <input class="form-control input-cep" type="text" name="cep" id="billingpostcode" value={{cep}} />
+					        <input class="form-control input-cep" type="text" name="cep" id="recurrentcccep" value={{cep}} />
 				        </div>
 				        <label class="col-sm-2 col-form-label">Número:</label>
 				        <div class="col-sm-2">
@@ -129,7 +129,7 @@
 			            <div class="col-xs-12 col-xl-12 error" id="billingstreet-error"></div>
 				        <label class="col-sm-2 col-form-label">Logradouro:</label>
 				        <div class="col-sm-10">
-					        <input class="form-control" type="text" name="logradouro" id="billingstreet" value={{logradouro}} />
+					        <input class="form-control" type="text" name="logradouro" id="recurrentcclogradouro" value={{logradouro}} />
 				        </div>
 				        
 			        </div>
@@ -137,7 +137,7 @@
 				        <div class="col-xs-12 col-xl-12 error" id="billingstate-error"></div>
 				        <label class="col-sm-1 col-form-label">UF:</label>
 				        <div class="col-sm-2">
-					        <input class="form-control" type="text" name="uf" id="billingstate" value={{uf}}/>
+					        <input class="form-control" type="text" name="uf" id="recurrentccuf" value={{uf}}/>
 				        </div>
 				        <label class="col-sm-3 col-form-label">Complemento:</label>
 				        <div class="col-sm-6">
@@ -149,22 +149,22 @@
 				        <div class="col-xs-12 col-xl-12 error" id="billingcity-error"></div>
 				        <label class="col-sm-2 col-form-label">Bairro:</label>
 				        <div class="col-sm-4">
-					        <input class="form-control" type="text" name="bairro" id="billingdistrict" value={{bairro}}/>
+					        <input class="form-control" type="text" name="bairro" id="recurrentccbairro" value={{bairro}}/>
 				        </div>
 				        <label class="col-sm-2 col-form-label">Cidade:</label>
 				        <div class="col-sm-4">
-					        <input class="form-control" type="text" name="cidade" id="billingcity" value={{cidade}}/>
+					        <input class="form-control" type="text" name="cidade" id="recurrentcccidade" value={{cidade}}/>
 				        </div>
 			        </div>
 			        <br />
 			        <hr />
 			        <br />
 			        <div class="form-group row">
-				        <span class="btn btn-primary" id="cc_cielo_submit" type="submit"> Pagar </span>
+				        <span class="btn btn-primary" id="recurrentcc_cielo_submit" type="submit"> Pagar </span>
 			        </div>
 
 			        <input type="hidden" name="pay_method" value="recurrentcc">
-			        <input type="hidden" name="courseid" id="cc_courseid" value="">
+			        <input type="hidden" name="courseid" id="recurrentcc_courseid" value="">
 			        <input type="hidden" name="instanceid" id="cc_instanceid" value="{{ instanceid }}">
 			        <input type="hidden" name="cc_couponcode" id="cc_couponcode" value="{{ couponcode }}">
 		        </form>

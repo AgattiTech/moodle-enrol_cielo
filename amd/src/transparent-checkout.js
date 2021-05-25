@@ -25,8 +25,8 @@
 
 require(['jquery'], function($){
 
-    $("#cielo-payment-btn").on('click', function(){
-        var couponcode = $("#cielo-payment-btn").data('coupon-code');
+    $(".cielo-payment-btn").on('click', function(){
+        var couponcode = $(".cielo-payment-btn").data('coupon-code');
         $('#cc_couponcode').val(couponcode);
         createMasks();
     });
@@ -44,6 +44,14 @@ require(['jquery'], function($){
             var urlParams = new URLSearchParams(window.location.search);
             $("#boleto_courseid").val(urlParams.get('id'));
             $('#cielo_boleto_form').submit();
+        }
+    });
+    
+    $(document).on('click', '#recurrentcc_cielo_submit', function() {
+        if(ccCieloValidateFields()){
+            var urlParams = new URLSearchParams(window.location.search);
+            $("#recurrentcc_courseid").val(urlParams.get('id'));
+            $('#cielo_recurrentcc_form').submit();
         }
     });
 
@@ -107,6 +115,43 @@ require(['jquery'], function($){
                         $("#boletobairro").val(dados.bairro);
                         $("#boletocidade").val(dados.localidade);
                         $("#boletouf").val(dados.uf);
+                    } else {
+                        // CEP pesquisado não foi encontrado.
+                        limpa_formulário_cep();
+                        alert("CEP não encontrado.");
+                    }
+                });
+            } else {
+                limpa_formulário_cep();
+                alert("Formato de CEP inválido.");
+            }
+        } else {
+            // Cep sem valor, limpa formulário.
+            limpa_formulário_cep();
+        }
+    });
+    
+    $(document).on('focusout', '#recurrentcccep', function() {
+        var cep = $('#recurrentcccep').val().replace(/\D/g, '');
+        // Verifica se campo cep possui valor informado.
+        if (cep != "") {
+            // Expressão regular para validar o CEP.
+            var validacep = /^[0-9]{8}$/;
+            // Valida o formato do CEP.
+            if(validacep.test(cep)) {
+                // Preenche os campos com "..." enquanto consulta webservice.
+                $("#recurrentcclogradouro").val("...");
+                $("#recurrentccbairro").val("...");
+                $("#recurrentcccidade").val("...");
+                $("#recurrentccuf").val("...");
+                // Consulta o webservice viacep.com.br.
+                $.getJSON("https://viacep.com.br/ws/" + cep + "/json/?callback=?", function(dados) {
+                    if (!("erro" in dados)) {
+                        // Atualiza os campos com os valores da consulta.
+                        $("#recurrentcclogradouro").val(dados.logradouro);
+                        $("#recurrentccbairro").val(dados.bairro);
+                        $("#recurrentcccidade").val(dados.localidade);
+                        $("#recurrentccuf").val(dados.uf);
                     } else {
                         // CEP pesquisado não foi encontrado.
                         limpa_formulário_cep();
