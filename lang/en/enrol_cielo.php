@@ -70,6 +70,7 @@ $string['paymentrequired'] = 'You must make a payment of {$a->currency} {$a->cos
 $string['pluginname'] = 'Cielo';
 $string['pluginname_desc'] = 'The Cielo module allows you to set up paid courses.  If the cost for any course is zero, then students are not asked to pay for entry.  There is a site-wide cost that you set here as a default for the whole site and then a course setting that you can set for each course individually. The course cost overrides the site cost.';
 $string['sendpaymentbutton'] = 'Send payment via Cielo';
+$string['sendpaymentbuttonrecurrent'] = 'Send payment via Cielo Recurrent';
 $string['status'] = 'Allow Cielo enrolments';
 $string['status_desc'] = 'Allow users to use Cielo to enrol into a course by default.';
 $string['unenrolselfconfirm'] = 'Do you really want to unenrol yourself from course "{$a}"?';
