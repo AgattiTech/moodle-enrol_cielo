@@ -70,11 +70,13 @@ if ($mform->is_cancelled()) {
         $instance->status         = $data->status;
         $instance->name           = $data->name;
         $instance->cost           = $data->cost;
-        $instance->customint1     = $data->customint1;
+        $instance->customint1     = $data->customint2 ? null : $data->customint1;
+        $instance->customint2     = $data->customint2;
+        $instance->customtext1    = $data->customint2 ? $data->customtext1 : null;
         $instance->currency       = $data->currency;
         $instance->roleid         = $data->roleid;
-        $instance->enrolperiod    = $data->enrolperiod;
-        $instance->enrolstartdate = $data->enrolstartdate;
+        $instance->enrolperiod    = $data->customint2 ? null : $data->enrolperiod;
+        $instance->enrolstartdate = $data->customint2 ? null : $data->enrolstartdate;
         $instance->enrolenddate   = $data->enrolenddate;
         $instance->timemodified   = time();
         $DB->update_record('enrol', $instance);
@@ -84,10 +86,19 @@ if ($mform->is_cancelled()) {
         }
 
     } else {
-        $fields = array('status' => $data->status, 'name' => $data->name, 'cost' => $data->cost,
-                        'customint1' => $data->customint1,'currency' => $data->currency,
-                        'roleid' => $data->roleid,'enrolperiod' => $data->enrolperiod,
-                        'enrolstartdate' => $data->enrolstartdate, 'enrolenddate' => $data->enrolenddate);
+        $fields = array(
+            'status'         => $data->status,
+            'name'           => $data->name,
+            'cost'           => $data->cost,
+            'customint1'     => $data->customint2 ? null : $data->customint1,
+            'customint2'     => $data->customint2,
+            'customtext1'    => $data->customint2 ? $data->customtext1 : null,
+            'currency'       => $data->currency,
+            'roleid'         => $data->roleid,
+            'enrolperiod'    => $data->customint2 ? null : $data->enrolperiod,
+            'enrolstartdate' => $data->customint2 ? null : $data->enrolstartdate,
+            'enrolenddate'   => $data->enrolenddate
+        );
         $plugin->add_instance($course, $fields);
     }
 

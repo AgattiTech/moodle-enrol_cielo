@@ -84,3 +84,7 @@ $string['boletoemail'] = 'Thank you for your interest in {a->course}. Please cli
 
 You can also pay with the ticket number:<br>
 {a->boletonum}';
+$string['isrecurrent'] = 'Is this payment method recurrent?';
+$string['checkedyesno'] = 'Yes';
+$string['recurringinterval'] = 'How often will the student be charged?';
+$string['cost_help'] = 'If recurrent payment is selected, then this will be the value charged on every installment.';

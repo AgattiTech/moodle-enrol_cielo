@@ -1,0 +1,185 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template enrol_cielo/transparentcheckout
+
+    The content to display when editing a tool.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * rows An array of objects with label, hidelabel, text and id
+
+    Example context (json):
+    {
+        "rows": [
+            {
+                "label": "Tool URL",
+                "text": "http://example.com/",
+                "id": "toolurl",
+                "hidelabel": false
+            },
+            {
+                "label": "Secret",
+                "text": "ABCDEF1234567890",
+                "id": "secret",
+                "hidelabel": true
+            }
+        ]
+    }
+}}
+
+<div align="center">
+	<p>{{requestPayment}}</p>
+	<button type="button" id="cielo-payment-btn" class="btn btn-primary" data-coupon-code="" data-toggle="modal" data-target="#cieloModal"
+	style="border-radius:15px;box-shadow:0 1px 3px #666666;color:#ffffff;font-size:20px;padding:10px 20px;text-decoration:none;">
+	  {{buttonString}}
+	</button>
+	<br /><br /><br />
+	<span id="session"></span>
+	<span id="return"></span>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="cieloModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+	  <div class="modal-header">
+	    <h5 class="modal-title" id="exampleModalLabel">{{instanceId}} - {{instanceName}}</h5>
+	    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		  <span aria-hidden="true">&times;</span>
+		</button>
+	  </div>
+	  <div id="modal-return" class="modal-body">
+	  	<ul class="nav nav-tabs" role="tablist">
+	        <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#CREDIT_CARD" aria-controls="CREDIT_CARD">Cartão de Crédito</a></li>
+	        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#BOLETO" aria-controls="BOLETO">Boleto</a></li>	
+        </ul>
+        <div class="tab-content">
+	        <div id="CREDIT_CARD" class="tab-pane fade show active" role="tabpanel" aria-labelledby="CREDIT_CARD" >
+		        <form id="cielo_cc_form" action="cielo/tr_process.php" method="POST">
+			        <br />
+			        <div class="form-group">
+				        <div class="col-xs-12 col-xl-12 error" id="ccName-error"></div>
+				        <input id="ccbrandvisa" type="radio" name="ccbrand" value="Visa">
+				        <label  for="ccbrandvisa">Visa</label>
+				        <input id="ccbrandmastercard" type="radio" name="ccbrand" value="Master">
+				        <label  for="ccbrandmastercard">Master Card</label>
+			        </div>
+			        <div class="form-group">
+				        <div class="col-xs-12 col-xl-12 error" id="ccName-error"></div>
+				        <label  for="ccholdername">Nome no Cartão:</label>
+				        <input id="ccName" class="form-control" type="text" name="ccholdername" value="{{ fullname }}"  />
+			        </div>
+			        <div class="form-group">
+				        <div class="col-xs-12 col-xl-12 error" id="cpf-error"></div>
+				        <label  for="cpf">CPF:</label>
+				        <input id="cpf" class="form-control input-cpfcnpj" type="text" name="cpf" value="{{ cpf }}"  />
+			        </div>
+			        <div class="form-group">
+			            <div class="col-xs-12 col-xl-12 error" id="ccNumber-error"></div>
+				        <label for="ccnumber">Número Cartão</label>
+				        <input id="ccNumber" class="form-control input-ccnumber" type="text" name="ccnumber" />
+				        <span id="cardbrand"></span>
+			        </div>
+			        <div class="form-group row">
+				        <div class="col-xs-12 col-xl-12 error" id="ccvalid-error"></div>
+				        <div class="col-xs-12 col-xl-12 error" id="cvv-error"></div>
+				        <label class="col-sm-2 col-form-label" for="ccvalid">Validade:</label>
+				        <div class="col-sm-4">
+					        <input id="ccvalid" class="form-control input-ccvalid" type="text" name="ccvalid" />
+				        </div>
+				        <label class="col-sm-2 col-form-label" for="cvv">CVV:</label>
+				        <div class="col-sm-4">
+					        <input id="cvv" class="form-control input-cvv" type="text" name="cvv" />
+				        </div>
+			        </div>
+			        <div id="card-installments" class="form-group">
+			            <label class="col-sm-2 col-form-label" for="ccinstallments">Parcelas:</label>
+				        <div class="col-sm-4">
+					        <select id="ccinstallments" class="form-control" type="text" name="ccinstallments" >
+					            {{#installments}}<option value="{{value}}">{{text}}</option>{{/installments}}
+					        </select>
+				        </div>
+				        
+			        </div>
+			        <hr />
+			        <div class="form-group row">
+				        <div class="col-xs-12 col-xl-12 error" id="billingpostcode-error"></div>
+				        <div class="col-xs-12 col-xl-12 error" id="billingnumber-error"></div>
+				        <label class="col-sm-2 col-form-label">CEP:</label>
+				        <div class="col-sm-6">
+					        <input class="form-control input-cep" type="text" name="cep" id="billingpostcode" value={{cep}} />
+				        </div>
+				        <label class="col-sm-2 col-form-label">Número:</label>
+				        <div class="col-sm-2">
+					        <input class="form-control" type="text" name="numero" value={{numero}} />
+				        </div>
+			        </div>
+			        <div class="form-group row">
+			            <div class="col-xs-12 col-xl-12 error" id="billingstreet-error"></div>
+				        <label class="col-sm-2 col-form-label">Logradouro:</label>
+				        <div class="col-sm-10">
+					        <input class="form-control" type="text" name="logradouro" id="billingstreet" value={{logradouro}} />
+				        </div>
+				        
+			        </div>
+			        <div class="form-group row">
+				        <div class="col-xs-12 col-xl-12 error" id="billingstate-error"></div>
+				        <label class="col-sm-1 col-form-label">UF:</label>
+				        <div class="col-sm-2">
+					        <input class="form-control" type="text" name="uf" id="billingstate" value={{uf}}/>
+				        </div>
+				        <label class="col-sm-3 col-form-label">Complemento:</label>
+				        <div class="col-sm-6">
+					        <input class="form-control" type="text" name="complemento" id="billingcomplement" value={{complemento}} />
+				        </div>
+			        </div>
+			        <div class="form-group row">
+				        <div class="col-xs-12 col-xl-12 error" id="billingdistrict-error"></div>
+				        <div class="col-xs-12 col-xl-12 error" id="billingcity-error"></div>
+				        <label class="col-sm-2 col-form-label">Bairro:</label>
+				        <div class="col-sm-4">
+					        <input class="form-control" type="text" name="bairro" id="billingdistrict" value={{bairro}}/>
+				        </div>
+				        <label class="col-sm-2 col-form-label">Cidade:</label>
+				        <div class="col-sm-4">
+					        <input class="form-control" type="text" name="cidade" id="billingcity" value={{cidade}}/>
+				        </div>
+			        </div>
+			        <br />
+			        <hr />
+			        <br />
+			        <div class="form-group row">
+				        <span class="btn btn-primary" id="cc_cielo_submit" type="submit"> Pagar </span>
+			        </div>
+
+			        <input type="hidden" name="pay_method" value="recurrentcc">
+			        <input type="hidden" name="courseid" id="cc_courseid" value="">
+			        <input type="hidden" name="cc_couponcode" id="cc_couponcode" value="{{ couponcode }}">
+		        </form>
+	        </div>
+        </div>
+	  </div>
+	</div>
+  </div>
+</div>

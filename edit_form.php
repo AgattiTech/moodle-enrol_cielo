@@ -57,11 +57,36 @@ class enrol_cielo_edit_form extends moodleform {
         $mform->addElement('text', 'cost', get_string('cost', 'enrol_cielo'), array('size' => 4));
         $mform->setType('cost', PARAM_RAW);
         $mform->setDefault('cost', $plugin->get_config('cost'));
+        $mform->addHelpButton('cost', 'cost', 'enrol_cielo');
 
         $mform->addElement('select', 'currency', get_string('currency', 'enrol_cielo'),
                            \get_string_manager()->get_list_of_currencies());
         $mform->setDefault('currency', $plugin->get_config('currency'));
         
+        if ($instance->id) {
+            $roles = get_default_enrol_roles($context, $instance->roleid);
+        } else {
+            $roles = get_default_enrol_roles($context, $plugin->get_config('roleid'));
+        }
+        
+        $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_cielo'), $roles);
+        $mform->setDefault('roleid', $plugin->get_config('roleid'));
+        
+        $mform->addElement('checkbox', 'customint2', get_string('isrecurrent', 'enrol_cielo'), get_string('checkedyesno', 'enrol_cielo'));
+        $mform->setType('customint2', PARAM_INT);
+        
+        $recurringinterval = array(
+            'monthly' => 'Monthly',
+            'bimonthly' => 'Bimonthly',
+            'quarterly' => 'Quarterly',
+            'semiannual' => 'SemiAnnual',
+            'annual' => 'Annual'
+        );
+        
+        $mform->addElement('select', 'customtext1', get_string('recurringinterval', 'enrol_cielo'),
+                           $recurringinterval);
+        $mform->setType('customtext1', PARAM_TEXT);
+        $mform->disabledIf('customtext1', 'customint2');
         
         $installmentslist = array();
         
@@ -72,24 +97,18 @@ class enrol_cielo_edit_form extends moodleform {
         $mform->addElement('select', 'customint1', get_string('installments', 'enrol_cielo'),
                            $installmentslist);
         $mform->setType('customint1', PARAM_INT);
-
-        if ($instance->id) {
-            $roles = get_default_enrol_roles($context, $instance->roleid);
-        } else {
-            $roles = get_default_enrol_roles($context, $plugin->get_config('roleid'));
-        }
-        
-        $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_cielo'), $roles);
-        $mform->setDefault('roleid', $plugin->get_config('roleid'));
+        $mform->disabledIf('customint1', 'customint2', 'checked');
 
         $options = ['optional' => true, 'defaultunit' => 86400];
         $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_cielo'), $options);
         $mform->setDefault('enrolperiod', $plugin->get_config('enrolperiod'));
+        $mform->disabledIf('enrolperiod', 'customint2', 'checked');
         $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_cielo');
 
         $options = ['optional' => true];
         $mform->addElement('date_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_cielo'), $options);
         $mform->setDefault('enrolstartdate', 0);
+        $mform->disabledIf('enrolstartdate', 'customint2', 'checked');
         $mform->addHelpButton('enrolstartdate', 'enrolstartdate', 'enrol_cielo');
 
         $mform->addElement('date_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_cielo'), $options);
