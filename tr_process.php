@@ -103,10 +103,14 @@ if($addressnumero) {
 
 profile_save_data($USER);
 
+$params = [];
+
+$params['paymentmethod'] = $paymentmethod;
+
 if ($paymentmethod == 'cc') {
 
     // Build array with all parameters from the form.
-    $params = [];
+    
 
     $courseid = optional_param('courseid', '0', PARAM_INT);
     $plugininstance = $DB->get_record('enrol', array('courseid' => $courseid, 'enrol' => 'cielo'));
@@ -123,7 +127,7 @@ if ($paymentmethod == 'cc') {
     $params['amount'] = str_replace(',', '', $params['amount']);
     $params['cc_number'] = str_replace(' ','',optional_param('ccnumber', '', PARAM_RAW));
     $params['cc_installment_quantity'] = optional_param('ccinstallments', '', PARAM_RAW);
-    $params['cc_expiration'] = optional_param('ccvalid', '', PARAM_RAW);
+    $params['expiration'] = date("Y-m-d", strtotime('+5 days'));
     $params['cc_cvv'] = optional_param('cvv', '', PARAM_RAW);
     $params['cc_brand'] = optional_param('ccbrand', '', PARAM_RAW);
     
@@ -143,7 +147,6 @@ if ($paymentmethod == 'cc') {
 } elseif ($paymentmethod == 'boleto') {
 
     // Build array with all parameters from the form.
-    $params = [];
 
     $courseid = optional_param('courseid', '0', PARAM_INT);
     $plugininstance = $DB->get_record('enrol', array('courseid' => $courseid, 'enrol' => 'cielo'));
@@ -217,7 +220,7 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     if ($returncode != 4 && $returncode != 6) {
         $params['payment_status'] = STATUS_FAILURE;
         cielo_updateorder($params, $merchantid, $merchantkey);
-        redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'errorcode' => $returncode)));
+        redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'cc', 'errorcode' => $returncode)));
     }
     
     $captureresponse = cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $merchantkey);
@@ -226,7 +229,7 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     
     cielo_handleenrolment($rec);
 
-    redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'] )));
+    redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'cc' )));
 }
 
 /**
@@ -239,7 +242,7 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
  *
  * @return void
  */
-function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
+function cielo_boleto_checkout($params, $merchantid, $merchantkey, $baseurl) {
     //TODO: Store paymentID
     // First we insert the order into the database, so the customer's info isn't lost.
     $extraamount = cielo_checkcoupon($params);
@@ -249,7 +252,8 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     
     $total = (float) $params['extraamount'] + (float) $params['amount'];
     $params['total'] = $total;
-    $reqjson = cielo_ccjson($params);
+    
+    $reqjson = cielo_boletojson($params);
     
     $myfile = fopen("/var/www/moodle/enrol/cielo/log_data.txt", "w") or die("Unable to open file!");
     $txt = var_export($params, true);
@@ -262,21 +266,21 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     
     $transactionresponse = json_decode($data);
     
-    $returncode = $transactionresponse->Payment->ReturnCode;
-
-    if ($returncode != 4 && $returncode != 6) {
+    try{
+        // send boleto via email
+//        sendboletoemail($params);
+        $params['boletonum'] = $transactionresponse->Payment->BarCodeNumber;
+        $params['boletourl'] = $transactionresponse->Payment->Url;
+        $params['paymentid'] = $transactionresponse->Payment->PaymentId;
+        cielo_updateorder($params, $merchantid, $merchantkey);
+        redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'boleto', 'bUrl' => $params['boletourl'] )));
+    
+    } catch (Exception $e) {
         $params['payment_status'] = STATUS_FAILURE;
         cielo_updateorder($params, $merchantid, $merchantkey);
-        redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'errorcode' => $returncode)));
+        redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'boleto','errorcode' => "b1")));
     }
     
-    $captureresponse = cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $merchantkey);
-    
-    $rec = cielo_handlecaptureresponse(json_decode($captureresponse), $params['reference']);
-    
-    cielo_handleenrolment($rec);
-
-    redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'] )));
 }
 
 /**
@@ -330,6 +334,30 @@ function cielo_checkcoupon($params) {
         }
     } else {
         return 0;
+    }
+}
+
+
+function cielo_sendboletoemail($params){
+    $a = new stdClass();
+    $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
+    $a->coursesn = format_string($course->shortname, true, array('context' => $coursecontext));
+    $a->boletourl = $params['boletourl'];
+    $a->boletonum = $params['boletonum'];
+    $a->user = fullname($user);
+    foreach ($admins as $admin) {
+        $eventdata = new \core\message\message();
+        $eventdata->component         = 'enrol_cielo';
+        $eventdata->name              = 'cielo_enrolment';
+        $eventdata->userfrom          = core_user::get_support_user();
+        $eventdata->userto            = $user;
+        $eventdata->subject           = get_string("boletoemailsubject", 'enrol_cielo', $a);
+        $eventdata->fullmessage       = get_string('boletoemail', 'enrol_cielo', $a);
+        $eventdata->fullmessageformat = FORMAT_PLAIN;
+        $eventdata->fullmessagehtml   = '';
+        $eventdata->smallmessage      = '';
+
+        message_send($eventdata);
     }
 }
 
@@ -442,6 +470,7 @@ function cielo_insertorder($params, $merchantid, $merchantkey) {
     $rec->courseid = $params['courseid'];
     $rec->userid = $USER->id;
     $rec->instanceid = $params['instanceid'];
+    $rec->type = $params['paymentmethod'];
     $rec->date = date("Y-m-d H:i:s");
     $rec->grossamount = $params['amount'];
     $rec->discountedamount = $params['extraamount'];
@@ -477,6 +506,7 @@ function cielo_updateorder($params, $merchantid, $merchantkey) {
     $rec->courseid = $params['courseid'];
     $rec->userid = $USER->id;
     $rec->instanceid = $params['instanceid'];
+    $rec->tid = $params['paymentid'];
     $rec->date = date("Y-m-d");
     $rec->payment_status = $params['payment_status'];
 
@@ -657,6 +687,49 @@ function cielo_ccjson($params) {
              "Brand":"'.$params['cc_brand'].'"
          }
        }
+    }';
+}
+
+/**
+ * Builds the xml to send credit card request to cielo
+ *
+ * @param array $params fields from the form and plugin settings.
+ *
+ * @return string of data in xml format
+ */
+function cielo_boletojson($params) {
+    return '{  
+        "MerchantOrderId":"'.$params['reference'].'",
+        "Customer":
+        {  
+            "Name":"'.$params['name'].'",
+            "Identity": "'.$params['cpf'].'",
+            "IdentityType":"'.$params['idtype'].'",
+            "Address":
+            {
+              "Street": "'.$params['logradouro'].'",
+              "Number": "'.$params['numero'].'",    
+              "Complement": "'.$params['complemento'].'",
+              "ZipCode" : "'.$params['cep'].'",
+              "District": "'.$params['bairro'].'",
+              "City": "'.$params['cidade'].'",
+              "State" : "'.$params['uf'].'",
+              "Country": "BRA"
+            }
+        },
+        "Payment":
+        {  
+            "Type":"Boleto",
+            "Amount":'.$params['total'] .',
+            "Provider":"Bradesco",
+            "Address": "Rua Teste",
+            "BoletoNumber": "123",
+            "Assignor": "Empresa Teste",
+            "Demonstrative": "Curso na Academia da Odontologia",
+            "ExpirationDate": "'.$params['expiration'].'",
+            "Identification": "11884926754",
+            "Instructions": "Aceitar somente até a data de vencimento."
+        }
     }';
 }
 

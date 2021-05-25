@@ -37,7 +37,9 @@ define('PROBLEMAS_COM_CARTAO', 70);
 require_login();
 
 $id = optional_param('id', 0, PARAM_INT);
+$type = optional_param('type', 0, PARAM_TEXT);
 $error = optional_param('errorcode', '4', PARAM_ALPHANUM);
+$urlboleto = optional_param('bUrl', '', PARAM_TEXT);
 
 if (!$course = $DB->get_record("course", array("id" => $id))) {
     redirect($CFG->wwwroot);
@@ -51,34 +53,40 @@ if (isset($SESSION->wantsurl)) {
 } else {
     $destination = "{$CFG->wwwroot}/course/view.php?id={$course->id}";
 }
-
-switch($error){
-    case SUCCESS:
-    case SUCCESS2:
-        cielo_success($destination, $context, $course);
-        break;
-    case NAO_AUTORIZADO:
-        cielo_error($destination, $context, 'naoautorizado');
-        break;
-    case CARTAO_EXPIRADO:
-        cielo_error($destination, $context, 'cartaoexpirado');
-        break;
-    case CARTAO_BLOQUEADO:
-        cielo_error($destination, $context, 'cartaobloqueado');
-        break;
-    case TIME_OUT:
-        cielo_error($destination, $context, 'timeout');
-        break;
-    case CARTAO_CANCELADO:
-        cielo_error($destination, $context, 'cartaocancelado');
-        break;
-    case PROBLEMAS_COM_CARTAO:
-        cielo_error($destination, $context, 'problemascomcartao');
-        break;
-    default:
-        cielo_error($destination, $context, 'outro');
-        break;
+if($type == 'cc'){
+    switch($error){
+        case SUCCESS:
+        case SUCCESS2:
+            cielo_success($destination, $context, $course);
+            break;
+        case NAO_AUTORIZADO:
+            cielo_error($destination, $context, 'naoautorizado');
+            break;
+        case CARTAO_EXPIRADO:
+            cielo_error($destination, $context, 'cartaoexpirado');
+            break;
+        case CARTAO_BLOQUEADO:
+            cielo_error($destination, $context, 'cartaobloqueado');
+            break;
+        case TIME_OUT:
+            cielo_error($destination, $context, 'timeout');
+            break;
+        case CARTAO_CANCELADO:
+            cielo_error($destination, $context, 'cartaocancelado');
+            break;
+        case PROBLEMAS_COM_CARTAO:
+            cielo_error($destination, $context, 'problemascomcartao');
+            break;
+        default:
+            cielo_error($destination, $context, 'outro');
+            break;
 }
+} elseif ($type == 'boleto') {
+    cielo_boleto_success($destination, $context, $course, $urlboleto);
+} else{
+    cielo_error($destination, $context, 'outro');
+}
+
 
 
 function cielo_error($destination,$context, $errortype) {
@@ -104,6 +112,29 @@ function cielo_success($destination, $context, $course) {
         $a->teacher = get_string('defaultcourseteacher');
         $a->fullname = $fullname;
         notice(get_string('paymentsorry', '', $a), $destination);
+        echo $OUTPUT->footer();
+    }
+}
+
+function cielo_boleto_success($destination, $context, $course, $urlboleto) {
+    global $PAGE, $OUTPUT;
+    
+    $fullname = format_string($course->fullname, true, array('context' => $context));
+    
+    
+    if (is_enrolled($context, null, '', true)) { // TODO: use real pagseguro check.
+        redirect($destination, get_string('paymentthanks', '', $fullname));
+        
+    } else {
+        $PAGE->set_context($context);
+        $PAGE->set_url($destination);
+        $renderer = $PAGE->get_renderer('enrol_cielo');
+        echo $OUTPUT->header();
+        $a = new stdClass();
+        $a->teacher = get_string('defaultcourseteacher');
+        $a->fullname = $fullname;
+        echo $renderer->show_boleto_frame($urlboleto);
+        notice(get_string('paymentshowboleto', 'enrol_cielo', $a), $destination);
         echo $OUTPUT->footer();
     }
 }

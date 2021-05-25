@@ -84,9 +84,9 @@ function cielo_notificationrequest($notificationcode, $email, $token, $baseurl) 
 
     $transaction = simplexml_load_string($data);
 
-    $rec = pagseguro_transparent_handletransactionresponse($transaction);
+    $rec = cielo_handletransactionresponse($transaction);
 
-    pagseguro_transparent_handleenrolment($rec);
+    cielo_handleenrolment($rec);
 
 }
 
@@ -97,7 +97,7 @@ function cielo_notificationrequest($notificationcode, $email, $token, $baseurl) 
  *
  * @return string $id the record id of the updated record in the database
  */
-function pagseguro_transparent_handletransactionresponse($data) {
+function cielo_handletransactionresponse($data) {
 
     global $DB;
 
@@ -148,7 +148,7 @@ function pagseguro_transparent_handletransactionresponse($data) {
  *
  * @return void
  */
-function pagseguro_transparent_handleenrolment($rec) {
+function cielo_handleenrolment($rec) {
     global $DB;
 
     $plugin = enrol_get_plugin('pagseguro');
@@ -180,7 +180,7 @@ function pagseguro_transparent_handleenrolment($rec) {
  *
  * @return void
  */
-function enrol_pagseguro_coursepaidevent($rec) {
+function enrol_cielo_coursepaidevent($rec) {
 
     $context = context_course::instance($rec->courseid);
 
@@ -191,7 +191,7 @@ function enrol_pagseguro_coursepaidevent($rec) {
         'other' => $data,
     );
 
-    $event = \enrol_pagseguro\event\payment_receive::create($param);
+    $event = \enrol_cielo\event\payment_receive::create($param);
     $event->trigger();
 }
 

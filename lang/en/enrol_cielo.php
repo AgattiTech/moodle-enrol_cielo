@@ -46,12 +46,12 @@ $string['enrolperiod_help'] = 'Length of time that the enrolment is valid, start
 $string['enrolstartdate'] = 'Start date';
 $string['enrolstartdate_help'] = 'If enabled, users can be enrolled from this date onward only.';
 $string['error:naoautorizado'] = 'This host is not authorized to use Cielo API.';
-$string['error:unauthorized'] = 'This host is not authorized to use Cielo API.';
-$string['error:unauthorized'] = 'This host is not authorized to use Cielo API.';
-$string['error:unauthorized'] = 'This host is not authorized to use Cielo API.';
-$string['error:unauthorized'] = 'This host is not authorized to use Cielo API.';
-$string['error:unauthorized'] = 'This host is not authorized to use Cielo API.';
-$string['error:unauthorized'] = 'This host is not authorized to use Cielo API.';
+$string['error:cartaoexpirado'] = 'Your card is expired.';
+$string['error:cartaobloqueado'] = 'Unable to authorize transaction, please contact your card issuer.';
+$string['error:timeout'] = 'There has been a timeout error, please try again later.';
+$string['error:cartaocancelado'] = 'Unable to authorize transaction, please contact your card issuer.';
+$string['error:problemascomcartao'] = 'Unable to authorize transaction, please contact your card issuer.';
+$string['error:outro'] = 'There has been a problem with the site, please contact system administrator.';
 $string['error:unauthorized'] = 'This host is not authorized to use Cielo API.';
 $string['mailadmins'] = 'Notify admin';
 $string['mailfromsupport'] = 'Send emails from support';
@@ -75,5 +75,12 @@ $string['status_desc'] = 'Allow users to use Cielo to enrol into a course by def
 $string['unenrolselfconfirm'] = 'Do you really want to unenrol yourself from course "{$a}"?';
 $string['transparentcheckout'] = 'Transparent Checkout';
 $string['usesandbox'] = 'Use Sandbox';
-$string['usesandbox'] = 'Use sandbox';
 $string['usesandboxdesc'] = 'Check this if you want to use a sandbox account (requests will be sent to sandbox.cielo.uol.com.br test site instead of the production site)';
+$string['paymentshowboleto'] = 'Thank you for your interest! Please see the attached ticket for payment. After the payment you will be registered to enter the course "{$a->fullname}". If you have any trouble, please alert the Teacher or the site administrator';
+$string['boletoemailsubject'] = 'Boleto Course {a->coursesn}';
+$string['boletoemail'] = 'Thank you for your interest in {a->course}. Please click the link below to view the ticket for payment: <br> <a href={a->boletourl}> Ver boleto </a><br> In case the link does not work you can copy and paste the address on your browser:<br>
+{a->boletourl}
+<br>
+
+You can also pay with the ticket number:<br>
+{a->boletonum}';
