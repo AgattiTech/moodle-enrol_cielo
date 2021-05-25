@@ -216,7 +216,8 @@ class enrol_cielo_plugin extends enrol_plugin {
                 $tcdata = array();
                 $tcdata["requestPayment"] = get_string('paymentrequired', 'enrol_cielo', $instance);
                 $tcdata["instanceName"] = $this->get_instance_name($instance);
-                $tcdata["instanceId"] = $instance->courseid;
+                $tcdata["instanceid"] = $instance->id;
+                $tcdata["courseid"] = $instance->courseid;
                 $tcdata["buttonString"] = get_string('sendpaymentbutton', 'enrol_cielo');
                 $tcdata["cfgRoot"] = $CFG->wwwroot;
                 $tcdata["courseP"] = (float) $instance->cost;
@@ -248,6 +249,8 @@ class enrol_cielo_plugin extends enrol_plugin {
                     $tcdata["complemento"] = $USER->complemento;
                 }
                 $output = $OUTPUT->render_from_template("enrol_cielo/recurrentcheckout", $tcdata);
+                
+                return $output;
             } else {
                 $installments = array();
                 for($i = 1; $i <= $instance->customint1; $i++){
@@ -260,7 +263,8 @@ class enrol_cielo_plugin extends enrol_plugin {
                 $tcdata = array();
                 $tcdata["requestPayment"] = get_string('paymentrequired', 'enrol_cielo', $instance);
                 $tcdata["instanceName"] = $this->get_instance_name($instance);
-                $tcdata["instanceId"] = $instance->courseid;
+                $tcdata["instanceid"] = $instance->id;
+                $tcdata["courseid"] = $instance->courseid;
                 $tcdata["buttonString"] = get_string('sendpaymentbutton', 'enrol_cielo');
                 $tcdata["cfgRoot"] = $CFG->wwwroot;
                 $tcdata["courseP"] = (float) $instance->cost;

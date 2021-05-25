@@ -75,6 +75,8 @@ $addresscidade = optional_param('cidade', '', PARAM_RAW);
 $addressuf = optional_param('uf', '', PARAM_RAW);
 $addresscomplemento = optional_param('complemento', '', PARAM_RAW);
 $addressnumero = optional_param('numero', '', PARAM_RAW);
+
+$instanceid = optional_param('instanceid','', PARAM_INT);
     
 if($usercpf) {
     $USER->profile_field_cpf = $usercpf;
@@ -106,6 +108,9 @@ profile_save_data($USER);
 $params = [];
 
 $params['paymentmethod'] = $paymentmethod;
+$params['instanceid'] = $instanceid;
+
+$plugininstance = $DB->get_record('enrol', array('id' => $instanceid));
 
 if ($paymentmethod == 'cc') {
 
@@ -113,10 +118,8 @@ if ($paymentmethod == 'cc') {
     
 
     $courseid = optional_param('courseid', '0', PARAM_INT);
-    $plugininstance = $DB->get_record('enrol', array('courseid' => $courseid, 'enrol' => 'cielo'));
 
     $params['courseid'] = $courseid;
-    $params['instanceid'] = $plugininstance->id;
 
     $params['couponcode'] = optional_param('cc_couponcode', '', PARAM_RAW);
 
@@ -149,10 +152,8 @@ if ($paymentmethod == 'cc') {
     // Build array with all parameters from the form.
 
     $courseid = optional_param('courseid', '0', PARAM_INT);
-    $plugininstance = $DB->get_record('enrol', array('courseid' => $courseid, 'enrol' => 'cielo'));
 
     $params['courseid'] = $courseid;
-    $params['instanceid'] = $plugininstance->id;
 
     $params['couponcode'] = optional_param('cc_couponcode', '', PARAM_RAW);
 
@@ -180,6 +181,41 @@ if ($paymentmethod == 'cc') {
 
     // Handle Credit Card Checkout.
     cielo_boleto_checkout($params, $merchantid, $merchantkey, $baseurl);
+
+} elseif ($paymentmethod == 'recurrentcc') {
+    $courseid = optional_param('courseid', '0', PARAM_INT);
+
+    $params['courseid'] = $courseid;
+
+    $params['couponcode'] = optional_param('cc_couponcode', '', PARAM_RAW);
+
+    // Continue building array of parameters from the form.
+    $params['name'] = optional_param('ccholdername', '', PARAM_RAW);
+    $params['desc'] = "AcademiaOdont";
+    $params['amount'] = number_format($plugininstance->cost, 2);
+    $params['amount'] = str_replace(',', '', $params['amount']);
+    $params['cc_number'] = str_replace(' ','',optional_param('ccnumber', '', PARAM_RAW));
+    $params['expiration'] = date("Y-m-d", strtotime('+5 days'));
+    $params['cc_cvv'] = optional_param('cvv', '', PARAM_RAW);
+    $params['cc_brand'] = optional_param('ccbrand', '', PARAM_RAW);
+    
+    $params['cpf'] = $usercpf;
+    $params['cep'] = $addresscep;
+    $params['logradouro'] = $addresslogradouro;
+    $params['bairro'] = $addressbairro;
+    $params['cidade'] = $addresscidade;
+    $params['uf'] = $addressuf;
+    $params['complemento'] = $addresscomplemento;
+    $params['numero'] = $addressnumero;
+    
+    //recurrent options
+    $params['interval'] = $plugininstance->customtext1;
+    $params['enddate'] = $plugininstance->enrolenddate ? date("Y-m-d", $plugininstance->enrolenddate) : '';
+
+    $params['payment_status'] = STATUS_PENDING;
+
+    cielo_recurrentcc_checkout();
+
 }
 
 /**
@@ -280,7 +316,51 @@ function cielo_boleto_checkout($params, $merchantid, $merchantkey, $baseurl) {
         cielo_updateorder($params, $merchantid, $merchantkey);
         redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'boleto','errorcode' => "b1")));
     }
+
+}
+
+/**
+ * Controller function of the credit card checkout
+ *
+ * @param array $params array of information about the order, gathered from the form
+ * @param string $email Pagseguro seller email
+ * @param string $token Pagseguro seller token
+ * @param string $baseurl defines if uses sandbox or production environment
+ *
+ * @return void
+ */
+function cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl) {
+    //TODO: Store paymentID
+    // First we insert the order into the database, so the customer's info isn't lost.
+    $extraamount = cielo_checkcoupon($params);
+    $params['extraamount'] = number_format($extraamount, 2);
+    $refid = cielo_insertorder($params, $merchantid, $merchantkey);
+    $params['reference'] = $refid;
     
+    $total = (float) $params['extraamount'] + (float) $params['amount'];
+    $params['total'] = $total;
+    $reqjson = cielo_recurrentccjson($params);
+    
+    $myfile = fopen("/var/www/moodle/enrol/cielo/log_data.txt", "w") or die("Unable to open file!");
+    $txt = var_export($params, true);
+    fwrite($myfile, $txt);
+    fclose($myfile);
+
+    $url = $baseurl."/1/sales";
+
+    $data = cielo_sendpaymentdetails($reqjson, $url, $merchantid, $merchantkey);
+    
+    $transactionresponse = json_decode($data);
+    
+    $returncode = $transactionresponse->Payment->ReturnCode;
+
+    if ($returncode != 4 && $returncode != 6) {
+        $params['payment_status'] = STATUS_FAILURE;
+        cielo_updateorder($params, $merchantid, $merchantkey);
+        redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'cc', 'errorcode' => $returncode)));
+    }
+
+    redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'cc' )));
 }
 
 /**
@@ -730,6 +810,37 @@ function cielo_boletojson($params) {
             "Identification": "11884926754",
             "Instructions": "Aceitar somente até a data de vencimento."
         }
+    }';
+}
+
+/**
+ * Builds the xml to send credit card request to cielo
+ *
+ * @param array $params fields from the form and plugin settings.
+ *
+ * @return string of data in xml format
+ */
+function cielo_recurrentccjson($params) {
+    return '{
+       "MerchantOrderId":"'.$params['reference'].'",
+       "Payment":{
+         "Type":"CreditCard",
+         "Amount":'.$params['total'] .',
+         "Installments": 1,
+         "SoftDescriptor":"'.$params['desc'].'",
+         "RecurrentPayment":{
+            "AuthorizeNow":"true",
+            "EndDate":"'.$params['enddate'].'",
+            "Interval":"'.$params['interval'].'"
+         },
+         "CreditCard":{
+             "CardNumber":"'.$params['cc_number'].'",
+             "Holder":"'.$params['name'].'",
+             "ExpirationDate":"'.$params['cc_expiration'].'",
+             "SecurityCode":"'.$params['cc_cvv'].'",
+             "Brand":"'.$params['cc_brand'].'"
+         }
+       }
     }';
 }
 

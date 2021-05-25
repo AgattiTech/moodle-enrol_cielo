@@ -49,7 +49,7 @@
 
 <div align="center">
 	<p>{{requestPayment}}</p>
-	<button type="button" id="cielo-payment-btn" class="btn btn-primary" data-coupon-code="" data-toggle="modal" data-target="#cieloModal"
+	<button type="button" id="cielo-payment-btn" class="btn btn-primary" data-coupon-code="" data-toggle="modal" data-target="#cieloModal{{ instanceid }}"
 	style="border-radius:15px;box-shadow:0 1px 3px #666666;color:#ffffff;font-size:20px;padding:10px 20px;text-decoration:none;">
 	  {{buttonString}}
 	</button>
@@ -60,7 +60,7 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="cieloModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="cieloModal{{ instanceid }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
 	  <div class="modal-header">
@@ -71,8 +71,7 @@
 	  </div>
 	  <div id="modal-return" class="modal-body">
 	  	<ul class="nav nav-tabs" role="tablist">
-	        <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#CREDIT_CARD" aria-controls="CREDIT_CARD">Cartão de Crédito</a></li>
-	        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#BOLETO" aria-controls="BOLETO">Boleto</a></li>	
+	        <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#CREDIT_CARD" aria-controls="CREDIT_CARD">Cartão de Crédito</a></li>	
         </ul>
         <div class="tab-content">
 	        <div id="CREDIT_CARD" class="tab-pane fade show active" role="tabpanel" aria-labelledby="CREDIT_CARD" >
@@ -112,15 +111,6 @@
 				        <div class="col-sm-4">
 					        <input id="cvv" class="form-control input-cvv" type="text" name="cvv" />
 				        </div>
-			        </div>
-			        <div id="card-installments" class="form-group">
-			            <label class="col-sm-2 col-form-label" for="ccinstallments">Parcelas:</label>
-				        <div class="col-sm-4">
-					        <select id="ccinstallments" class="form-control" type="text" name="ccinstallments" >
-					            {{#installments}}<option value="{{value}}">{{text}}</option>{{/installments}}
-					        </select>
-				        </div>
-				        
 			        </div>
 			        <hr />
 			        <div class="form-group row">
@@ -175,6 +165,7 @@
 
 			        <input type="hidden" name="pay_method" value="recurrentcc">
 			        <input type="hidden" name="courseid" id="cc_courseid" value="">
+			        <input type="hidden" name="instanceid" id="cc_instanceid" value="{{ instanceid }}">
 			        <input type="hidden" name="cc_couponcode" id="cc_couponcode" value="{{ couponcode }}">
 		        </form>
 	        </div>

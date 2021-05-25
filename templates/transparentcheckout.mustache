@@ -49,7 +49,7 @@
 
 <div align="center">
 	<p>{{requestPayment}}</p>
-	<button type="button" id="cielo-payment-btn" class="btn btn-primary" data-coupon-code="" data-toggle="modal" data-target="#cieloModal"
+	<button type="button" id="cielo-payment-btn" class="btn btn-primary" data-coupon-code="" data-toggle="modal" data-target="#cieloModal{{ instanceid }}"
 	style="border-radius:15px;box-shadow:0 1px 3px #666666;color:#ffffff;font-size:20px;padding:10px 20px;text-decoration:none;">
 	  {{buttonString}}
 	</button>
@@ -60,11 +60,11 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="cieloModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="cieloModal{{ instanceid }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
 	  <div class="modal-header">
-	    <h5 class="modal-title" id="exampleModalLabel">{{instanceId}} - {{instanceName}}</h5>
+	    <h5 class="modal-title" id="exampleModalLabel">{{courseid}} - {{instanceName}}</h5>
 	    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 		  <span aria-hidden="true">&times;</span>
 		</button>
@@ -175,6 +175,7 @@
 
 			<input type="hidden" name="pay_method" value="cc">
 			<input type="hidden" name="courseid" id="cc_courseid" value="">
+			<input type="hidden" name="instanceid" id="cc_instanceid" value="{{ instanceid }}">
 			<input type="hidden" name="cc_couponcode" id="cc_couponcode" value="{{ couponcode }}">
 		</form>
 		
@@ -260,6 +261,7 @@
 			<input type="hidden" name="sender_hash" value="">
 			<input type="hidden" name="boleto_couponcode" id="boleto_couponcode" value="{{ couponcode }}">
 			<input id="boleto_courseid" type="hidden" name="courseid" value="">
+			<input type="hidden" name="instanceid" id="boleto_instanceid" value="{{ instanceid }}">
 		</form>
 	</div>
 </div>
