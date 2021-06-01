@@ -236,10 +236,10 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     $params['total'] = $total;
     $reqjson = cielo_ccjson($params);
     
-   // $myfile = fopen("/var/www/moodle/enrol/cielo/log_data.txt", "w") or die("Unable to open file!");
-   // $txt = var_export($params, true);
-   // fwrite($myfile, $txt);
-   // fclose($myfile);
+    $myfile = fopen("/var/www/acodonto_m/enrol/cielo/log_data.txt", "w") or die("Unable to open myfile!");
+    $txt = var_export($params, true);
+    fwrite($myfile, $txt);
+    fclose($myfile);
 
     $url = $baseurl."/1/sales";
 
@@ -249,7 +249,7 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     
     $returncode = $transactionresponse->Payment->ReturnCode;
 
-    if ($returncode != 4 && $returncode != 6) {
+    if ($returncode != 4 && $returncode != 6 && $returncode != 0 && $returncode != '00') {
         $params['payment_status'] = STATUS_FAILURE;
         cielo_updateorder($params, $merchantid, $merchantkey);
         redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'cc', 'errorcode' => $returncode)));
@@ -287,7 +287,7 @@ function cielo_boleto_checkout($params, $merchantid, $merchantkey, $baseurl) {
     
     $reqjson = cielo_boletojson($params);
     
-    $myfile = fopen("/var/www/moodle/enrol/cielo/log_data.txt", "w") or die("Unable to open file!");
+    $myfile = fopen("/var/www/moodle/enrol/cielo/log_data.txt", "w") or die("Unable to open myfile!");
     $txt = var_export($params, true);
     fwrite($myfile, $txt);
     fclose($myfile);
@@ -338,7 +338,7 @@ function cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl
     $params['total'] = $total;
     $reqjson = cielo_recurrentccjson($params);
     
-    $myfile = fopen("/var/www/moodle/enrol/cielo/log_data.txt", "w") or die("Unable to open file!");
+    $myfile = fopen("/var/www/moodle/enrol/cielo/log_data.txt", "w") or die("Unable to open myfile!");
     $txt = var_export($params, true);
     fwrite($myfile, $txt);
     fclose($myfile);
@@ -456,10 +456,10 @@ function cielo_sendboletoemail($params){
 function cielo_sendpaymentdetails($json, $url, $merchantid, $merchantkey) {
 
     $d = array($json,$url);
-   // $myfile = fopen("/var/www/moodle/enrol/cielo/log_req.txt", "w") or die("Unable to open file!");
-   // $txt = var_export($d, true);
-   // fwrite($myfile, $txt);
-   // fclose($myfile);
+    $myfile = fopen("/var/www/acodonto_m/enrol/cielo/log_req.txt", "w") or die("Unable to open myfile!");
+    $txt = var_export($d, true);
+    fwrite($myfile, $txt);
+    fclose($myfile);
     
     $curl = curl_init();
 
@@ -484,10 +484,10 @@ function cielo_sendpaymentdetails($json, $url, $merchantid, $merchantkey) {
 
     curl_close($curl);
     
-   // $myfile = fopen("/var/www/moodle/enrol/cielo/log_res.txt", "w") or die("Unable to open file!");
-   // $txt = var_export($data, true);
-   // fwrite($myfile, $txt);
-   // fclose($myfile);
+    $myfile = fopen("/var/www/acodonto_m/enrol/cielo/log_res.txt", "w") or die("Unable to open myfile!");
+    $txt = var_export($data, true);
+    fwrite($myfile, $txt);
+    fclose($myfile);
 
     return $data;
 
@@ -499,10 +499,10 @@ function cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $me
     
     $d = array($url, $transactionresponse);
     
-   // $myfile = fopen("/var/www/moodle/enrol/cielo/log_reqcapture.txt", "w") or die("Unable to open file!");
-   // $txt = var_export($d, true);
-   // fwrite($myfile, $txt);
-   // fclose($myfile);
+    $myfile = fopen("/var/www/acodonto_m/enrol/cielo/log_reqcapture.txt", "w") or die("Unable to open myfile!");
+    $txt = var_export($d, true);
+    fwrite($myfile, $txt);
+    fclose($myfile);
     
     $curl = curl_init();
 
@@ -527,10 +527,10 @@ function cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $me
 
     curl_close($curl);
     
-   // $myfile = fopen("/var/www/moodle/enrol/cielo/log_rescapture.txt", "w") or die("Unable to open file!");
-   // $txt = var_export($data, true);
-   // fwrite($myfile, $txt);
-   // fclose($myfile);
+    $myfile = fopen("/var/www/acodonto_m/enrol/cielo/log_rescapture.txt", "w") or die("Unable to open myfile!");
+    $txt = var_export($data, true);
+    fwrite($myfile, $txt);
+    fclose($myfile);
     
     return $data;
     
