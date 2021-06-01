@@ -214,7 +214,9 @@ class enrol_cielo_plugin extends enrol_plugin {
                 }
 
                 $tcdata = array();
-                $tcdata["requestPayment"] = get_string('paymentrequired', 'enrol_cielo', $instance);
+                $tcdata["requestpayment"] = get_string('paymentrequiredp1', 'enrol_cielo', $instance);
+                $tcdata["requestpaymentcost"] = $instance->cost;
+                $tcdata["requestpaymentp2"] = get_string('paymentrequiredp2', 'enrol_cielo');
                 $tcdata["instanceName"] = $this->get_instance_name($instance);
                 $tcdata["instanceid"] = $instance->id;
                 $tcdata["courseid"] = $instance->courseid;
@@ -261,7 +263,9 @@ class enrol_cielo_plugin extends enrol_plugin {
                 }
 
                 $tcdata = array();
-                $tcdata["requestPayment"] = get_string('paymentrequired', 'enrol_cielo', $instance);
+                $tcdata["requestpayment"] = get_string('paymentrequiredp1', 'enrol_cielo', $instance);
+                $tcdata["requestpaymentcost"] = $instance->cost;
+                $tcdata["requestpaymentp2"] = get_string('paymentrequiredp2', 'enrol_cielo');
                 $tcdata["instanceName"] = $this->get_instance_name($instance);
                 $tcdata["instanceid"] = $instance->id;
                 $tcdata["courseid"] = $instance->courseid;
