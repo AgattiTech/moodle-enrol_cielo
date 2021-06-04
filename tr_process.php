@@ -130,7 +130,7 @@ if ($paymentmethod == 'cc') {
     $params['amount'] = str_replace(',', '', $params['amount']);
     $params['cc_number'] = str_replace(' ','',optional_param('ccnumber', '', PARAM_RAW));
     $params['cc_installment_quantity'] = optional_param('ccinstallments', '', PARAM_RAW);
-    $params['expiration'] = date("Y-m-d", strtotime('+5 days'));
+    $params['cc_expiration'] = optional_param('ccvalid', '', PARAM_RAW);
     $params['cc_cvv'] = optional_param('cvv', '', PARAM_RAW);
     $params['cc_brand'] = optional_param('ccbrand', '', PARAM_RAW);
     
@@ -218,8 +218,8 @@ if ($paymentmethod == 'cc') {
  * Controller function of the credit card checkout
  *
  * @param array $params array of information about the order, gathered from the form
- * @param string $email Pagseguro seller email
- * @param string $token Pagseguro seller token
+ * @param string $email Cielo seller email
+ * @param string $token Cielo seller token
  * @param string $baseurl defines if uses sandbox or production environment
  *
  * @return void
@@ -247,7 +247,10 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     
     $transactionresponse = json_decode($data);
     
+    $params['logresponse'] = var_export($transactionresponse,true);
+    
     $returncode = $transactionresponse->Payment->ReturnCode;
+    $params['paymentid'] = $transactionresponse->Payment->PaymentId;
 
     if ($returncode != 4 && $returncode != 6) {
         $params['payment_status'] = STATUS_FAILURE;
@@ -268,8 +271,8 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
  * Controller function of the credit card checkout
  *
  * @param array $params array of information about the order, gathered from the form
- * @param string $email Pagseguro seller email
- * @param string $token Pagseguro seller token
+ * @param string $email Cielo seller email
+ * @param string $token Cielo seller token
  * @param string $baseurl defines if uses sandbox or production environment
  *
  * @return void
@@ -298,6 +301,8 @@ function cielo_boleto_checkout($params, $merchantid, $merchantkey, $baseurl) {
     
     $transactionresponse = json_decode($data);
     
+    $params['logresponse'] = var_export($transactionresponse,true);
+    
     try{
         // send boleto via email
 //        sendboletoemail($params);
@@ -319,8 +324,8 @@ function cielo_boleto_checkout($params, $merchantid, $merchantkey, $baseurl) {
  * Controller function of the credit card checkout
  *
  * @param array $params array of information about the order, gathered from the form
- * @param string $email Pagseguro seller email
- * @param string $token Pagseguro seller token
+ * @param string $email Cielo seller email
+ * @param string $token Cielo seller token
  * @param string $baseurl defines if uses sandbox or production environment
  *
  * @return void
@@ -349,6 +354,9 @@ function cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl
     
     $transactionresponse = json_decode($data);
     
+    $params['logresponse'] = var_export($transactionresponse,true);
+    $params['paymentid'] = $transactionresponse->Payment->PaymentId;
+    
     $returncode = $transactionresponse->Payment->ReturnCode;
 
     if ($returncode != 4 && $returncode != 6) {
@@ -370,9 +378,9 @@ function cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl
 /**
  * Controller function of the notification receiver
  *
- * @param string $notificationcode the notification code sent by Pagseguro
- * @param string $email Pagseguro seller email
- * @param string $token Pagseguro seller token
+ * @param string $notificationcode the notification code sent by Cielo
+ * @param string $email Cielo seller email
+ * @param string $token Cielo seller token
  * @param string $baseurl defines if uses sandbox or production environment
  *
  * @return void
@@ -540,8 +548,8 @@ function cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $me
  * Inserts preliminary order information into enrol_cielo table.
  *
  * @param array $params information about the order, gathered from the form
- * @param string $email Pagseguro seller email
- * @param string $token Pagseguro seller token
+ * @param string $email Cielo seller email
+ * @param string $token Cielo seller token
  *
  * @return string ID of the record inserted
  */
@@ -575,8 +583,8 @@ function cielo_insertorder($params, $merchantid, $merchantkey) {
  * Updates the order information in enrol_cielo table.
  *
  * @param array $params information about the order, gathered from the form or cielo notification
- * @param string $email Pagseguro seller email
- * @param string $token Pagseguro seller token
+ * @param string $email Cielo seller email
+ * @param string $token Cielo seller token
  *
  * @return void
  */
@@ -593,6 +601,7 @@ function cielo_updateorder($params, $merchantid, $merchantkey) {
     $rec->tid = $params['paymentid'] ?: null;
     $rec->date = date("Y-m-d");
     $rec->payment_status = $params['payment_status'];
+    $rec->request_string = $params['logresponse'];
 
     $DB->update_record("enrol_cielo", $rec);
 
@@ -806,12 +815,13 @@ function cielo_boletojson($params) {
             "Type":"Boleto",
             "Amount":'.$params['total'] .',
             "Provider":"Bradesco",
-            "Address": "Rua Teste",
-            "BoletoNumber": "123",
+            "Address": "RUA SANTA CATARINA, Nº 220, Complemento: SALA 101, Bairro: COMERCIARIO, CEP: 88802260, Cidade: Criciúma, Estado: Santa Catarina",
+            "BoletoNumber": "'.$params['reference'].'",
             "Assignor": "Empresa Teste",
             "Demonstrative": "Curso na Academia da Odontologia",
             "ExpirationDate": "'.$params['expiration'].'",
-            "Identification": "11884926754",
+            "Identification": "41504468000109",
+                               
             "Instructions": "Aceitar somente até a data de vencimento."
         }
     }';

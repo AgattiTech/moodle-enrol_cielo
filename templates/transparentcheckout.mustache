@@ -79,16 +79,30 @@
 		<form id="cielo_cc_form" action="cielo/tr_process.php" method="POST">
 			<br />
 			<div class="form-group">
-				<div class="col-xs-12 col-xl-12 error" id="ccName-error"></div>
-				<input id="ccbrandvisa" type="radio" name="ccbrand" value="Visa">
-				<label  for="ccbrandvisa">Visa</label>
-				<input id="ccbrandmastercard" type="radio" name="ccbrand" value="Master">
-				<label  for="ccbrandmastercard">Master Card</label>
+				<div class="col-xs-12 col-xl-12 error ccBrand-error"></div>
+		        <input id="ccbrandvisa" type="radio" name="ccbrand" value="Visa">
+		        <label  for="ccbrandvisa">Visa</label>
+		        <input id="ccbrandmastercard" type="radio" name="ccbrand" value="Master">
+		        <label  for="ccbrandmastercard">Master Card</label>
+		        <input id="ccbrandamericanexpress" type="radio" name="ccbrand" value="Amex">
+		        <label  for="ccbrandamericanexpress">American Express</label>
+		        <input id="ccbrandelo" type="radio" name="ccbrand" value="Elo">
+		        <label  for="ccbrandelo">Elo</label>
+		        <input id="ccbrandaura" type="radio" name="ccbrand" value="Aura">
+		        <label  for="ccbrandaura">Aura</label>
+		        <input id="ccbrandjcb" type="radio" name="ccbrand" value="JCB">
+		        <label  for="ccbrandjcb">JCB</label>
+		        <input id="ccbranddiners" type="radio" name="ccbrand" value="Diners">
+		        <label  for="ccbranddiners">Diners Club</label>
+		        <input id="ccbranddiscover" type="radio" name="ccbrand" value="Discover">
+		        <label  for="ccbranddiscover">Discover</label>
+		        <input id="ccbrandhipercard" type="radio" name="ccbrand" value="Hipercard">
+		        <label  for="ccbrandhipercard">Hipercard</label>
 			</div>
 			<div class="form-group">
-				<div class="col-xs-12 col-xl-12 error" id="ccName-error"></div>
+				<div class="col-xs-12 col-xl-12 error ccName-error"></div>
 				<label  for="ccholdername">Nome no Cartão:</label>
-				<input id="ccName" class="form-control" type="text" name="ccholdername" value="{{ fullname }}"  />
+				<input id="ccName" class="ccName form-control" type="text" name="ccholdername" value="{{ fullname }}"  />
 			</div>
 			<div class="form-group">
 				<div class="col-xs-12 col-xl-12 error" id="cpf-error"></div>
@@ -96,21 +110,21 @@
 				<input id="cpf" class="form-control input-cpfcnpj" type="text" name="cpf" value="{{ cpf }}"  />
 			</div>
 			<div class="form-group">
-			    <div class="col-xs-12 col-xl-12 error" id="ccNumber-error"></div>
+			    <div class="col-xs-12 col-xl-12 error ccNumber-error"></div>
 				<label for="ccnumber">Número Cartão</label>
-				<input id="ccNumber" class="form-control input-ccnumber" type="text" name="ccnumber" />
+				<input id="ccNumber" class="ccNumber form-control input-ccnumber" type="text" name="ccnumber" />
 				<span id="cardbrand"></span>
 			</div>
 			<div class="form-group row">
-				<div class="col-xs-12 col-xl-12 error" id="ccvalid-error"></div>
-				<div class="col-xs-12 col-xl-12 error" id="cvv-error"></div>
+				<div class="col-xs-12 col-xl-12 error ccvalid-error" ></div>
+				<div class="col-xs-12 col-xl-12 error cvv-error" ></div>
 				<label class="col-sm-2 col-form-label" for="ccvalid">Validade:</label>
 				<div class="col-sm-4">
-					<input id="ccvalid" class="form-control input-ccvalid" type="text" name="ccvalid" />
+					<input id="ccvalid" class="ccvalid form-control input-ccvalid" type="text" name="ccvalid" />
 				</div>
 				<label class="col-sm-2 col-form-label" for="cvv">CVV:</label>
 				<div class="col-sm-4">
-					<input id="cvv" class="form-control input-cvv" type="text" name="cvv" />
+					<input id="cvv" class="cvv form-control input-cvv" type="text" name="cvv" />
 				</div>
 			</div>
 			<div id="card-installments" class="form-group">
@@ -124,8 +138,8 @@
 			</div>
 			<hr />
 			<div class="form-group row">
-				<div class="col-xs-12 col-xl-12 error" id="billingpostcode-error"></div>
-				<div class="col-xs-12 col-xl-12 error" id="billingnumber-error"></div>
+				<div class="col-xs-12 col-xl-12 error billingpostcode-error"></div>
+				<div class="col-xs-12 col-xl-12 error billingnumber-error" ></div>
 				<label class="col-sm-2 col-form-label">CEP:</label>
 				<div class="col-sm-6">
 					<input class="form-control input-cep" type="text" name="cep" id="billingpostcode" value={{cep}} />
@@ -136,7 +150,7 @@
 				</div>
 			</div>
 			<div class="form-group row">
-			    <div class="col-xs-12 col-xl-12 error" id="billingstreet-error"></div>
+			    <div class="col-xs-12 col-xl-12 error billingstreet-error"></div>
 				<label class="col-sm-2 col-form-label">Logradouro:</label>
 				<div class="col-sm-10">
 					<input class="form-control" type="text" name="logradouro" id="billingstreet" value={{logradouro}} />
@@ -144,7 +158,7 @@
 				
 			</div>
 			<div class="form-group row">
-				<div class="col-xs-12 col-xl-12 error" id="billingstate-error"></div>
+				<div class="col-xs-12 col-xl-12 error billingstate-error"></div>
 				<label class="col-sm-1 col-form-label">UF:</label>
 				<div class="col-sm-2">
 					<input class="form-control" type="text" name="uf" id="billingstate" value={{uf}}/>
@@ -155,8 +169,8 @@
 				</div>
 			</div>
 			<div class="form-group row">
-				<div class="col-xs-12 col-xl-12 error" id="billingdistrict-error"></div>
-				<div class="col-xs-12 col-xl-12 error" id="billingcity-error"></div>
+				<div class="col-xs-12 col-xl-12 error billingdistrict-error"></div>
+				<div class="col-xs-12 col-xl-12 error billingcity-error"></div>
 				<label class="col-sm-2 col-form-label">Bairro:</label>
 				<div class="col-sm-4">
 					<input class="form-control" type="text" name="bairro" id="billingdistrict" value={{bairro}}/>

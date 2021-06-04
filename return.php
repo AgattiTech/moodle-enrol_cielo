@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * PagSeguro return script.
+ * Cielo return script.
  *
- * @package    enrol_pagseguro
- * @copyright  2020 Daniel Neis Araujo <danielneis@gmail.com>
+ * @package    enrol_cielo
+ * @copyright  2021 Igor Agatti Lima <igor@igoragatti.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -102,7 +102,7 @@ function cielo_success($destination, $context, $course) {
     global $OUTPUT, $PAGE;
     
     $fullname = format_string($course->fullname, true, array('context' => $context));
-    if (is_enrolled($context, null, '', true)) { // TODO: use real pagseguro check.
+    if (is_enrolled($context, null, '', true)) { // TODO: use real cielo check.
         redirect($destination, get_string('paymentthanks', '', $fullname));
     } else {
         $PAGE->set_context($context);
@@ -122,7 +122,7 @@ function cielo_boleto_success($destination, $context, $course, $urlboleto) {
     $fullname = format_string($course->fullname, true, array('context' => $context));
     
     
-    if (is_enrolled($context, null, '', true)) { // TODO: use real pagseguro check.
+    if (is_enrolled($context, null, '', true)) { // TODO: use real cielo check.
         redirect($destination, get_string('paymentthanks', '', $fullname));
         
     } else {

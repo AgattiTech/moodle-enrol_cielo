@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * pagseguro enrolment plugin - support for user self unenrolment.
+ * cielo enrolment plugin - support for user self unenrolment.
  *
- * @package    enrol_pagseguro
- * @copyright  2020 Daniel Neis Araujo <danielneis@gmail.com>
+ * @package    enrol_cielo
+ * @copyright  2021 Igor Agatti Lima <igor@igoragatti.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,7 +27,7 @@ require('../../config.php');
 $enrolid = required_param('enrolid', PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_BOOL);
 
-$instance = $DB->get_record('enrol', array('id' => $enrolid, 'enrol' => 'pagseguro'), '*', MUST_EXIST);
+$instance = $DB->get_record('enrol', array('id' => $enrolid, 'enrol' => 'cielo'), '*', MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $instance->courseid), '*', MUST_EXIST);
 $context = context_course::instance($course->id);
 
@@ -37,13 +37,13 @@ if (!is_enrolled($context)) {
 }
 require_login($course);
 
-$plugin = enrol_get_plugin('pagseguro');
+$plugin = enrol_get_plugin('cielo');
 
 if (!$plugin->get_unenrolself_link($instance)) {
     redirect(new moodle_url('/course/view.php', array('id' => $course->id)));
 }
 
-$PAGE->set_url('/enrol/pagseguro/unenrolself.php', array('enrolid' => $instance->id));
+$PAGE->set_url('/enrol/cielo/unenrolself.php', array('enrolid' => $instance->id));
 $PAGE->set_title($plugin->get_instance_name($instance));
 
 if ($confirm and confirm_sesskey()) {
@@ -55,6 +55,6 @@ if ($confirm and confirm_sesskey()) {
 echo $OUTPUT->header();
 $yesurl = new moodle_url($PAGE->url, array('confirm' => 1, 'sesskey' => sesskey()));
 $nourl = new moodle_url('/course/view.php', array('id' => $course->id));
-$message = get_string('unenrolselfconfirm', 'enrol_pagseguro', format_string($course->fullname));
+$message = get_string('unenrolselfconfirm', 'enrol_cielo', format_string($course->fullname));
 echo $OUTPUT->confirm($message, $yesurl, $nourl);
 echo $OUTPUT->footer();

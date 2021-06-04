@@ -32,23 +32,23 @@ require(['jquery'], function($){
     });
 
     $(document).on('click', '#cc_cielo_submit', function() {
-        if(ccCieloValidateFields()){
+        if(ccCieloValidateFields('#cielo_cc_form')){
             var urlParams = new URLSearchParams(window.location.search);
             $("#cc_courseid").val(urlParams.get('id'));
             $('#cielo_cc_form').submit();
         }
     });
-    
+
     $(document).on('click', '#boleto_cielo_submit', function() {
-        if(ccCieloValidateFields()){
+        if(ccCieloValidateFields('#cielo_boleto_form')){
             var urlParams = new URLSearchParams(window.location.search);
             $("#boleto_courseid").val(urlParams.get('id'));
             $('#cielo_boleto_form').submit();
         }
     });
-    
+
     $(document).on('click', '#recurrentcc_cielo_submit', function() {
-        if(ccCieloValidateFields()){
+        if(ccCieloValidateFields('#cielo_recurrentcc_form')){
             var urlParams = new URLSearchParams(window.location.search);
             $("#recurrentcc_courseid").val(urlParams.get('id'));
             $('#cielo_recurrentcc_form').submit();
@@ -93,7 +93,7 @@ require(['jquery'], function($){
             limpa_formulário_cep();
         }
     });
-    
+
     $(document).on('focusout', '#boletocep', function() {
         var cep = $('#boletocep').val().replace(/\D/g, '');
         // Verifica se campo cep possui valor informado.
@@ -130,7 +130,7 @@ require(['jquery'], function($){
             limpa_formulário_cep();
         }
     });
-    
+
     $(document).on('focusout', '#recurrentcccep', function() {
         var cep = $('#recurrentcccep').val().replace(/\D/g, '');
         // Verifica se campo cep possui valor informado.
@@ -167,6 +167,45 @@ require(['jquery'], function($){
             limpa_formulário_cep();
         }
     });
+
+    function ccCieloValidateFields(formId){
+        var rtn = true;
+
+        var re_ccvalid = /\d{2}\/\d{4}/gm;
+        var re_ccNumber = /\d{4}(\s\d{4}){3}/gm;
+        var re_cccvv = /\d{3}/gm;
+        if(!$( formId + ' input[name=ccbrand]:checked').val()){
+            rtn = false;
+            $(formId + " .ccBrand-error").html('Favor escolher bandeira do cartão');
+        } else{
+            $(formId + " .ccBrand-error").html('');
+        }
+        if(!$(formId + " .ccName").val().trim()){
+            rtn = false;
+            $(formId + " .ccName-error").html('Favor preencher Nome corretamente');
+        }else{
+            $(formId + " .ccName-error").html('');
+        }
+        if(!re_ccNumber.test($(formId + " .ccNumber").val().trim())){
+            rtn = false;
+            $(formId + " .ccNumber-error").html('Favor preencher Número do cartão corretamente');
+        }else{
+            $(formId + " .ccNumber-error").html('');
+        }
+        if(!re_ccvalid.test($(formId + " .ccvalid").val().trim())){
+            rtn = false;
+            $(formId + " .ccvalid-error").html('Favor preencher Validade do cartão corretamente mm/aaaa');
+        }else{
+            $(formId + " .ccvalid-error").html('');
+        }
+        if(!re_cccvv.test($(formId + " .cvv").val().trim())){
+            rtn = false;
+            $(formId + " .cvv-error").html('Favor preencher CVV corretamente');
+        }else{
+            $(formId + " .cvv-error").html('');
+        }
+        return rtn;
+    }
 });
 
 function createMasks(){
@@ -213,45 +252,4 @@ function limpa_formulário_cep_boleto() {
     });
 }
 
-function ccCieloValidateFields(){
-    
-    var rtn = true;
-    require(['jquery'],function($) {
-        var re_ccvalid = /\d{2}\/\d{4}/gm;
-        var re_ccNumber = /\d{4}(\s\d{4}){3}/gm;
-        var re_cccvv = /\d{3}/gm;
-        if(!$('input[name=ccbrand]:checked', '#cielo_cc_form').val()){
-            rtn = false;
-            $("#ccBrand-error").html('Favor escolher bandeira do cartão');
-        } else{
-            $("#ccBrand-error").html('');
-        }
-        if(!$("#ccName").val().trim()){
-            rtn = false;
-            $("#ccName-error").html('Favor preencher Nome corretamente');
-        }else{
-            $("#ccName-error").html('');
-        }
-        if(!re_ccNumber.test($("#ccNumber").val().trim())){
-            rtn = false;
-            $("#ccNumber-error").html('Favor preencher Número do cartão corretamente');
-        }else{
-            $("#ccNumber-error").html('');
-        }
-        if(!re_ccvalid.test($("#ccvalid").val().trim())){
-            console.log("reached here");
-            rtn = false;
-            $("#ccvalid-error").html('Favor preencher Validade do cartão corretamente mm/aaaa');
-        }else{
-            $("#ccvalid-error").html('');
-        }
-        if(!re_cccvv.test($("#cvv").val().trim())){
-            rtn = false;
-            $("#cvv-error").html('Favor preencher CVV corretamente');
-        }else{
-            $("#cvv-error").html('');
-        }
-    });
 
-    return rtn;
-}

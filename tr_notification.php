@@ -15,14 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Listens for Instant Payment Notification from pagseguro
+ * Listens for Instant Payment Notification from cielo
  *
- * This script waits for Payment notification from pagseguro,
- * then double checks that data by sending it back to pagseguro.
- * If pagseguro verifies this then it sets up the enrolment for that
+ * This script waits for Payment notification from cielo,
+ * then double checks that data by sending it back to cielo.
+ * If cielo verifies this then it sets up the enrolment for that
  * user.
  *
- * @package    enrol_pagseguro
+ * @package    enrol_cielo
  * @copyright  2010 Eugene Venter
  * @copyright  2015 Daniel Neis Araujo <danielneis@gmail.com>
  * @author     Eugene Venter - based on code by others
@@ -35,8 +35,6 @@
 require('../../config.php');
 require_once("lib.php");
 require_once($CFG->libdir.'/enrollib.php');
-
-//header("access-control-allow-origin: https://sandbox.pagseguro.uol.com.br");
 
 define('SUCESSO', 4);
 define('SUCESSO2', 6);
@@ -112,29 +110,29 @@ function cielo_handletransactionresponse($data) {
     $rec->discountedamount = $data->discountAmount->__toString();
 
     switch($rec->status){
-        case COMMERCE_PAGSEGURO_STATUS_AWAITING:
-        case COMMERCE_PAGSEGURO_STATUS_IN_ANALYSIS:
+        case COMMERCE_CIELO_STATUS_AWAITING:
+        case COMMERCE_CIELO_STATUS_IN_ANALYSIS:
             $rec->payment_status = COMMERCE_PAYMENT_STATUS_PENDING;
             break;
-        case COMMERCE_PAGSEGURO_STATUS_PAID:
-        case COMMERCE_PAGSEGURO_STATUS_AVAILABLE:
+        case COMMERCE_CIELO_STATUS_PAID:
+        case COMMERCE_CIELO_STATUS_AVAILABLE:
             $rec->payment_status = COMMERCE_PAYMENT_STATUS_SUCCESS;
             break;
-        case COMMERCE_PAGSEGURO_STATUS_DISPUTED:
-        case COMMERCE_PAGSEGURO_STATUS_REFUNDED:
-        case COMMERCE_PAGSEGURO_STATUS_CANCELED:
-        case COMMERCE_PAGSEGURO_STATUS_DEBITED:
-        case COMMERCE_PAGSEGURO_STATUS_WITHHELD:
+        case COMMERCE_CIELO_STATUS_DISPUTED:
+        case COMMERCE_CIELO_STATUS_REFUNDED:
+        case COMMERCE_CIELO_STATUS_CANCELED:
+        case COMMERCE_CIELO_STATUS_DEBITED:
+        case COMMERCE_CIELO_STATUS_WITHHELD:
             $rec->payment_status = COMMERCE_PAYMENT_STATUS_FAILURE;
             break;
 
     }
 
-    $DB->update_record("enrol_pagseguro", $rec);
+    $DB->update_record("enrol_cielo", $rec);
 
-    $record = $DB->get_record("enrol_pagseguro", ['id' => $rec->id]);
+    $record = $DB->get_record("enrol_cielo", ['id' => $rec->id]);
     if ($record->payment_status == COMMERCE_PAYMENT_STATUS_SUCCESS) {
-        enrol_pagseguro_coursepaidevent($record);
+        enrol_cielo_coursepaidevent($record);
     }
 
     return $record;
@@ -151,8 +149,8 @@ function cielo_handletransactionresponse($data) {
 function cielo_handleenrolment($rec) {
     global $DB;
 
-    $plugin = enrol_get_plugin('pagseguro');
-    $plugininstance = $DB->get_record('enrol', array('courseid' => $rec->courseid, 'enrol' => 'pagseguro'));
+    $plugin = enrol_get_plugin('cielo');
+    $plugininstance = $DB->get_record('enrol', array('courseid' => $rec->courseid, 'enrol' => 'cielo'));
 
     if ($plugininstance->enrolperiod) {
         $timestart = time();
