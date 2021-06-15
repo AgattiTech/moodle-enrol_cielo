@@ -236,7 +236,7 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     $params['total'] = $total;
     $reqjson = cielo_ccjson($params);
     
-    $myfile = fopen("/var/www/acodonto_m/enrol/cielo/log_data.txt", "w") or die("Unable to open myfile!");
+    $myfile = fopen("log_data.txt", "w") or die("Unable to open myfile!");
     $txt = var_export($params, true);
     fwrite($myfile, $txt);
     fclose($myfile);
@@ -262,7 +262,7 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     
     $rec = cielo_handlecaptureresponse(json_decode($captureresponse), $params['reference']);
     
-    cielo_handleenrolment($rec);
+    cielo_handleenrolment($rec, $params);
 
     redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'cc' )));
 }
@@ -290,7 +290,7 @@ function cielo_boleto_checkout($params, $merchantid, $merchantkey, $baseurl) {
     
     $reqjson = cielo_boletojson($params);
     
-    $myfile = fopen("/var/www/moodle/enrol/cielo/log_data.txt", "w") or die("Unable to open myfile!");
+    $myfile = fopen("log_data.txt", "w") or die("Unable to open myfile!");
     $txt = var_export($params, true);
     fwrite($myfile, $txt);
     fclose($myfile);
@@ -343,7 +343,7 @@ function cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl
     $params['total'] = $total;
     $reqjson = cielo_recurrentccjson($params);
     
-    $myfile = fopen("/var/www/moodle/enrol/cielo/log_data.txt", "w") or die("Unable to open myfile!");
+    $myfile = fopen("log_data.txt", "w") or die("Unable to open myfile!");
     $txt = var_export($params, true);
     fwrite($myfile, $txt);
     fclose($myfile);
@@ -359,18 +359,17 @@ function cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl
     
     $returncode = $transactionresponse->Payment->ReturnCode;
 
-    if ($returncode != 4 && $returncode != 6) {
+    if ($returncode != 4 && $returncode != 6 && $returncode != 0 && $returncode != '00') {
         $params['payment_status'] = STATUS_FAILURE;
         cielo_updateorder($params, $merchantid, $merchantkey);
         redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'recurrentcc', 'errorcode' => $returncode)));
     }
-    $params['paymentid'] = $transactionresponse->Payment->PaymentId;
-    $params['payment_status'] = STATUS_SUCCESS;
-    cielo_updateorder($params, $merchantid, $merchantkey);
     
-    $rec = $DB->get_record('enrol_cielo', array('id' => $params['reference']) );
+    $captureresponse = cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $merchantkey);
     
-    cielo_handleenrolment($rec);
+    $rec = cielo_handlecaptureresponse(json_decode($captureresponse), $params['reference']);
+    
+    cielo_handleenrolment($rec, $params);
 
     redirect(new moodle_url('/enrol/cielo/return.php', array('id' => $params['courseid'], 'type' => 'recurrentcc' )));
 }
@@ -464,7 +463,7 @@ function cielo_sendboletoemail($params){
 function cielo_sendpaymentdetails($json, $url, $merchantid, $merchantkey) {
 
     $d = array($json,$url);
-    $myfile = fopen("/var/www/acodonto_m/enrol/cielo/log_req.txt", "w") or die("Unable to open myfile!");
+    $myfile = fopen("log_req.txt", "w") or die("Unable to open myfile!");
     $txt = var_export($d, true);
     fwrite($myfile, $txt);
     fclose($myfile);
@@ -492,7 +491,7 @@ function cielo_sendpaymentdetails($json, $url, $merchantid, $merchantkey) {
 
     curl_close($curl);
     
-    $myfile = fopen("/var/www/acodonto_m/enrol/cielo/log_res.txt", "w") or die("Unable to open myfile!");
+    $myfile = fopen("log_res.txt", "w") or die("Unable to open myfile!");
     $txt = var_export($data, true);
     fwrite($myfile, $txt);
     fclose($myfile);
@@ -507,7 +506,7 @@ function cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $me
     
     $d = array($url, $transactionresponse);
     
-    $myfile = fopen("/var/www/acodonto_m/enrol/cielo/log_reqcapture.txt", "w") or die("Unable to open myfile!");
+    $myfile = fopen("log_reqcapture.txt", "w") or die("Unable to open myfile!");
     $txt = var_export($d, true);
     fwrite($myfile, $txt);
     fclose($myfile);
@@ -535,7 +534,7 @@ function cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $me
 
     curl_close($curl);
     
-    $myfile = fopen("/var/www/acodonto_m/enrol/cielo/log_rescapture.txt", "w") or die("Unable to open myfile!");
+    $myfile = fopen("log_rescapture.txt", "w") or die("Unable to open myfile!");
     $txt = var_export($data, true);
     fwrite($myfile, $txt);
     fclose($myfile);
@@ -687,11 +686,11 @@ function enrol_cielo_coursepaidevent($rec) {
  *
  * @return void
  */
-function cielo_handleenrolment($rec) {
+function cielo_handleenrolment($rec, $params) {
     global $DB;
 
     $plugin = enrol_get_plugin('cielo');
-    $plugininstance = $DB->get_record('enrol', array('courseid' => $rec->courseid, 'enrol' => 'cielo'));
+    $plugininstance = $DB->get_record('enrol', array('id' => $params['instanceid']));
 
     if ($plugininstance->enrolperiod) {
         $timestart = time();

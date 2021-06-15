@@ -60,31 +60,22 @@ if (get_config('enrol_cielo', 'usesandbox') == 1) {
     $queryurl = 'https://apiquery.cieloecommerce.cielo.com.br';
 }
 
-$notificationcode = optional_param('notificationCode', '', PARAM_RAW);
+$key = optional_param('notificationCode', '', PARAM_RAW);
 $notificationtype = optional_param('notificationType', '', PARAM_RAW);
 
-if (!empty($notificationcode) && $notificationtype == 'transaction') {
-    cielo_notificationrequest($notificationcode, $merchantid, $merchantkey, $baseurl);
-}
+$json = file_get_contents('php://input');
+$data = json_decode($json)
 
-function cielo_notificationrequest($notificationcode, $email, $token, $baseurl) {
+cielo_notificationrequest($data, $merchantid, $merchantkey, $baseurl);
 
-    $url = $baseurl."/v3/transactions/notifications/{$notificationcode}?email={$email}&token={$token}";
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/x-www-form-urlencoded; charset=ISO-8859-1"));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+function cielo_notificationrequest($data, $merchantid, $merchantkey, $baseurl) {
 
-    $data = curl_exec($ch);
-    curl_close($ch);
-
-    $transaction = simplexml_load_string($data);
-
-    $rec = cielo_handletransactionresponse($transaction);
-
-    cielo_handleenrolment($rec);
+    $myfile = fopen("notifications.txt", "a") or fopen("notifications.txt", "w") or die("Unable to open myfile!");
+    $txt = var_export($data, true);
+    $txt .= "\n\n\n";
+    fwrite($myfile, $txt);
+    fclose($myfile);
 
 }
 
