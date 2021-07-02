@@ -49,7 +49,7 @@
 
 <div align="center">
 	<p>{{requestpayment}}<span class="cp-cost">{{requestpaymentcost}}</span>{{requestpaymentp2}}</p>
-	<button type="button" id="cielo-payment-btn{{ instanceid }}" class="btn btn-primary cielo-payment-btn" data-coupon-code="" data-toggle="modal" data-target="#cieloModal{{ instanceid }}"
+	<button type="button" id="cielo-payment-btn{{instanceid}}" class="btn btn-primary cielo-payment-btn" data-coupon-code="" data-toggle="modal" data-target="#cieloModal{{instanceid}}"
 	style="border-radius:15px;box-shadow:0 1px 3px #666666;color:#ffffff;font-size:20px;padding:10px 20px;text-decoration:none;">
 	  {{buttonString}}
 	</button>
@@ -60,7 +60,7 @@
 
 
 <!-- Modal -->
-<div class="modal fade cielo-modal" id="cieloModal{{ instanceid }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:none">
+<div class="modal fade cielo-modal" id="cieloModal{{instanceid}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:none">
   <div class="modal-dialog">
     <div class="modal-content">
 	  <div class="modal-header">
@@ -72,7 +72,9 @@
 	  <div id="modal-return" class="modal-body">
 	  	<ul class="nav nav-tabs" role="tablist">
 	<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#CREDIT_CARD" aria-controls="CREDIT_CARD">Cartão de Crédito</a></li>
-	<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#BOLETO" aria-controls="BOLETO">Boleto</a></li>	
+	{{#enrolboleto}}
+	<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#BOLETO" aria-controls="BOLETO">Boleto</a></li>
+	{{/enrolboleto}}
 </ul>
 <div class="tab-content">
 	<div id="CREDIT_CARD" class="tab-pane fade show active" role="tabpanel" aria-labelledby="CREDIT_CARD" >
@@ -102,12 +104,12 @@
 			<div class="form-group">
 				<div class="col-xs-12 col-xl-12 error ccName-error"></div>
 				<label  for="ccholdername">Nome no Cartão:</label>
-				<input id="ccName" class="ccName form-control" type="text" name="ccholdername" value="{{ fullname }}"  />
+				<input id="ccName" class="ccName form-control" type="text" name="ccholdername" value="{{fullname}}"  />
 			</div>
 			<div class="form-group">
 				<div class="col-xs-12 col-xl-12 error" id="cpf-error"></div>
 				<label  for="cpf">CPF:</label>
-				<input id="cpf" class="form-control input-cpfcnpj" type="text" name="cpf" value="{{ cpf }}"  />
+				<input id="cpf" class="form-control input-cpfcnpj" type="text" name="cpf" value="{{cpf}}"  />
 			</div>
 			<div class="form-group">
 			    <div class="col-xs-12 col-xl-12 error ccNumber-error"></div>
@@ -189,11 +191,12 @@
 
 			<input type="hidden" name="pay_method" value="cc">
 			<input type="hidden" name="courseid" id="cc_courseid" value="">
-			<input type="hidden" name="instanceid" id="cc_instanceid" value="{{ instanceid }}">
-			<input type="hidden" name="cc_couponcode" id="cc_couponcode" value="{{ couponcode }}">
+			<input type="hidden" name="instanceid" id="cc_instanceid" value="{{instanceid}}">
+			<input type="hidden" name="cc_couponcode" id="cc_couponcode" value="{{couponcode}}">
 		</form>
 		
 	</div>
+	{{#enrolboleto}}
 	<div id="BOLETO" class="tab-pane fade" role="tabpanel" aria-labelledby="BOLETO" >
 		<form id="cielo_boleto_form" action="cielo/tr_process.php" method="POST">
 			<br />
@@ -201,13 +204,13 @@
 			<div class="form-group">
 				<div class="col-xs-12 col-xl-12 error" id="boleto_nome-error"></div>
 				<label for="sendername">Nome Completo:</label>
-				<input placeholder="Nome completo" id="boleto_nome" class="form-control" type="text" name="sendername" value="{{ fullname }}" />
+				<input placeholder="Nome completo" id="boleto_nome" class="form-control" type="text" name="sendername" value="{{fullname}}" />
 			</div>
 <!--			<div class="form-group row">-->
 <!--				<div class="col-xs-12 col-xl-12 error" id="boleto_email-error"></div>-->
 <!--				<label class="col-sm-2 col-form-label" for="senderemail">Email:</label>-->
 <!--				<div class="col-sm-10">-->
-<!--					<input placeholder="Email" id="boleto_email" class="form-control" type="email" name="senderemail" value="{{ email }}" />-->
+<!--					<input placeholder="Email" id="boleto_email" class="form-control" type="email" name="senderemail" value="{{email}}" />-->
 <!--				</div>-->
 <!--			</div>-->
 			<div class="form-group row">
@@ -273,11 +276,12 @@
 			</div>
 			<input type="hidden" name="pay_method" value="boleto">
 			<input type="hidden" name="sender_hash" value="">
-			<input type="hidden" name="boleto_couponcode" id="boleto_couponcode" value="{{ couponcode }}">
+			<input type="hidden" name="boleto_couponcode" id="boleto_couponcode" value="{{couponcode}}">
 			<input id="boleto_courseid" type="hidden" name="courseid" value="">
-			<input type="hidden" name="instanceid" id="boleto_instanceid" value="{{ instanceid }}">
+			<input type="hidden" name="instanceid" id="boleto_instanceid" value="{{instanceid}}">
 		</form>
 	</div>
+	{{/enrolboleto}}
 </div>
 	  </div>
 <!--  <div class="modal-footer">

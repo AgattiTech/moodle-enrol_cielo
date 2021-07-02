@@ -146,6 +146,33 @@ class enrol_cielo_plugin extends enrol_plugin {
 
         return new moodle_url('/enrol/cielo/edit.php', array('courseid' => $courseid));
     }
+    
+    /**
+     * After unenroling user check this method checks if there is a recurrent payment and sends today as an end date.
+     *
+     */
+    public function unenrol_user(stdClass $instance, $userid) {
+        
+        $this->parent::unenrol_user($instance, $userid);
+        
+        $conditions = array(
+            'userid' => $userid,
+            'instanceid' => $instace->id;
+            'type' => 'recurrentcc',
+            'paymentstatus' => 'success', 
+        );
+        
+        $sql = "SELECT *
+                FROM {enrol_cielo} ec
+                WHERE ec.userid = :userid AND ec.instanceid = :instanceid
+                AND ec.type = :type AND ec.payment_status = :paymentstatus
+                ORDER BY ec.id DESC";
+        $rec = $DB->get_records_sql($sql, $conditions, 0, $limitnum=1);
+        
+        if(!empty($rec)){
+            $this->cielo_change_end_date(date('Y-m-d'), $rec->tid);
+        }
+    }
 
     /**
      * Creates course enrol form, checks if form submitted
@@ -226,6 +253,7 @@ class enrol_cielo_plugin extends enrol_plugin {
                 $tcdata["getSessionUrl"] = new moodle_url('/enrol/cielo/tr_process.php');
                 $tcdata["installments"] = $installments;
                 $tcdata["fullname"] = "$USER->firstname $USER->lastname";
+                $tcdata["enrolboleto"] = $this->get_config('enrolboleto');
                 if ($USER->cpf) {
                     $tcdata["cpf"] = $USER->cpf;
                 }
@@ -275,6 +303,7 @@ class enrol_cielo_plugin extends enrol_plugin {
                 $tcdata["getSessionUrl"] = new moodle_url('/enrol/cielo/tr_process.php');
                 $tcdata["installments"] = $installments;
                 $tcdata["fullname"] = "$USER->firstname $USER->lastname";
+                $tcdata["enrolboleto"] = $this->get_config('enrolboleto');
                 if ($USER->cpf) {
                     $tcdata["cpf"] = $USER->cpf;
                 }
@@ -330,6 +359,43 @@ class enrol_cielo_plugin extends enrol_plugin {
     public function can_hide_show_instance($instance) {
         $context = context_course::instance($instance->courseid);
         return has_capability('enrol/cielo:config', $context);
+    }
+    
+    /**
+     *
+     * This method sends the signal to Cielo to update the end date. 
+     *
+     */
+    private function cielo_change_end_date($date, $paymentid) {
+        $merchantid = $this->get_config('merchantid');
+        $merchantkey = $this->get_config('merchantkey');
+        $usesandbox = $this->get_config('usesandbox');
+        
+        $baseurl = $usesandbox ? 'https://apisandbox.cieloecommerce.cielo.com.br' : 'https://api.cieloecommerce.cielo.com.br';
+        
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => $baseurl . '/1/RecurrentPayment/' . $paymentid . '/EndDate',
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'PUT',
+          CURLOPT_POSTFIELDS => $date,
+          CURLOPT_HTTPHEADER => array(
+            'MerchantId: ' . $merchantid,
+            'Content-Type: text/json',
+            'MerchantKey: ' . $merchantkey
+          ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        echo $response;
     }
 
 }

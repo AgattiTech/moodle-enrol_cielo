@@ -23,8 +23,8 @@
  */
 
 $string['assignrole'] = 'Assign role';
-$string['automaticenrolboleto'] = 'Cielo Automatic enrol bill';
-$string['automaticenrolboleto_desc'] = 'Automatic enrol by payment of bill';
+$string['enrolboleto'] = 'Enable bill payment';
+$string['enrolboleto_desc'] = 'When checked it will add the boleto form to the checkout';
 $string['merchantid'] = 'Cielo Merchant ID';
 $string['merchantid_desc'] = 'The Merchant ID obtained from Cielo to be able to use the API';
 $string['merchantkey'] = 'Cielo merchant key';
@@ -90,3 +90,5 @@ $string['isrecurrent'] = 'Is this payment method recurrent?';
 $string['checkedyesno'] = 'Yes';
 $string['recurringinterval'] = 'How often will the student be charged?';
 $string['cost_help'] = 'If recurrent payment is selected, then this will be the value charged on every installment.';
+$string['expiredaction'] = 'Enrolment expiry action';
+$string['expiredaction_help'] = 'Select action to carry out when user enrolment expires. Please note that some user data and settings are purged from course during course unenrolment.';

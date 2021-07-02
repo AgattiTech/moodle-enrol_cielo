@@ -37,6 +37,14 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configtext('enrol_cielo/merchantkey',
         get_string('merchantkey', 'enrol_cielo'), get_string('merchantkey_desc', 'enrol_cielo'), '', PARAM_RAW));
+        
+    $options = array(
+        ENROL_EXT_REMOVED_KEEP           => get_string('extremovedkeep', 'enrol'),
+        ENROL_EXT_REMOVED_SUSPENDNOROLES => get_string('extremovedsuspendnoroles', 'enrol'),
+        ENROL_EXT_REMOVED_UNENROL        => get_string('extremovedunenrol', 'enrol'),
+    );
+    
+    $settings->add(new admin_setting_configselect('enrol_cielo/expiredaction', get_string('expiredaction', 'enrol_cielo'), get_string('expiredaction_help', 'enrol_cielo'), ENROL_EXT_REMOVED_SUSPENDNOROLES, $options));
 
     $settings->add(new admin_setting_configcheckbox('enrol_cielo/mailstudents',
         get_string('mailstudents', 'enrol_cielo'), '', 0));
@@ -53,9 +61,9 @@ if ($ADMIN->fulltree) {
         get_string('mailfromsupport_desc', 'enrol_cielo'),
         0));
 
-    $settings->add(new admin_setting_configcheckbox('enrol_cielo/automaticenrolboleto',
-        get_string('automaticenrolboleto', 'enrol_cielo'),
-        get_string('automaticenrolboleto_desc', 'enrol_cielo'),
+    $settings->add(new admin_setting_configcheckbox('enrol_cielo/enrolboleto',
+        get_string('enrolboleto', 'enrol_cielo'),
+        get_string('enrolboleto_desc', 'enrol_cielo'),
         0));
 
     $settings->add(new admin_setting_configcheckbox(
@@ -69,6 +77,7 @@ if ($ADMIN->fulltree) {
 
     $options = array(ENROL_INSTANCE_ENABLED  => get_string('yes'),
                      ENROL_INSTANCE_DISABLED => get_string('no'));
+
     $settings->add(new admin_setting_configselect('enrol_cielo/status',
         get_string('status', 'enrol_cielo'), get_string('status_desc', 'enrol_cielo'), ENROL_INSTANCE_DISABLED, $options));
 
