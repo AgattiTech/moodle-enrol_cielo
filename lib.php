@@ -157,7 +157,7 @@ class enrol_cielo_plugin extends enrol_plugin {
         
         $conditions = array(
             'userid' => $userid,
-            'instanceid' => $instace->id;
+            'instanceid' => $instace->id,
             'type' => 'recurrentcc',
             'paymentstatus' => 'success', 
         );
