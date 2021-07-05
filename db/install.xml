@@ -25,9 +25,11 @@
         
         <FIELD NAME="status" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="type" NEXT="tid"/>
         
-        <FIELD NAME="tid" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="status" NEXT="proofofsale"/>
+        <FIELD NAME="tid" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="status" NEXT="recurrentpaymentid"/>
         
-        <FIELD NAME="proofofsale" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="tid" NEXT="authcode"/>
+        <FIELD NAME="recurrentpaymentid" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="tid" NEXT="proofofsale"/>
+        
+        <FIELD NAME="proofofsale" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="recurrentpaymentid" NEXT="authcode"/>
         
         <FIELD NAME="authcode" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="proofofsale" NEXT="grossamount"/>
         

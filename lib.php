@@ -152,25 +152,29 @@ class enrol_cielo_plugin extends enrol_plugin {
      *
      */
     public function unenrol_user(stdClass $instance, $userid) {
-        
-        $this->parent::unenrol_user($instance, $userid);
-        
+        global $DB;
+
+        parent::unenrol_user($instance, $userid);
+
         $conditions = array(
             'userid' => $userid,
-            'instanceid' => $instace->id,
+            'instanceid' => $instance->id,
             'type' => 'recurrentcc',
             'paymentstatus' => 'success', 
         );
-        
+
         $sql = "SELECT *
                 FROM {enrol_cielo} ec
                 WHERE ec.userid = :userid AND ec.instanceid = :instanceid
                 AND ec.type = :type AND ec.payment_status = :paymentstatus
                 ORDER BY ec.id DESC";
-        $rec = $DB->get_records_sql($sql, $conditions, 0, $limitnum=1);
-        
-        if(!empty($rec)){
-            $this->cielo_change_end_date(date('Y-m-d'), $rec->tid);
+
+        $recs = $DB->get_records_sql($sql, $conditions, 0, $limitnum=1);
+
+        if(!empty($recs)){
+            foreach ($recs as $rec){
+                $this->cielo_change_end_date(date('Y-m-d'), $rec->recurrentpaymentid);
+            }
         }
     }
 
@@ -372,24 +376,25 @@ class enrol_cielo_plugin extends enrol_plugin {
         $usesandbox = $this->get_config('usesandbox');
         
         $baseurl = $usesandbox ? 'https://apisandbox.cieloecommerce.cielo.com.br' : 'https://api.cieloecommerce.cielo.com.br';
+        $url = $baseurl . '/1/RecurrentPayment/' . $paymentid . '/Deactivate';
         
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-          CURLOPT_URL => $baseurl . '/1/RecurrentPayment/' . $paymentid . '/EndDate',
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => '',
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 0,
-          CURLOPT_FOLLOWLOCATION => true,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => 'PUT',
-          CURLOPT_POSTFIELDS => $date,
-          CURLOPT_HTTPHEADER => array(
-            'MerchantId: ' . $merchantid,
+            CURLOPT_HEADER => 0,
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'PUT',
+            CURLOPT_HTTPHEADER => array(
+            'MerchantId:' . $merchantid,
             'Content-Type: text/json',
             'MerchantKey: ' . $merchantkey
-          ),
+            ),
         ));
 
         $response = curl_exec($curl);

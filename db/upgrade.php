@@ -49,5 +49,21 @@ defined('MOODLE_INTERNAL') || die;
  * @return boolean
  */
 function xmldb_enrol_cielo_upgrade($oldversion) {
+    global $DB;
+    $dbman = $DB->get_manager();
+    if ($oldversion < 2021070503) {
+
+        // Define field recurrentpaymentid to be added to enrol_cielo.
+        $table = new xmldb_table('enrol_cielo');
+        $field = new xmldb_field('recurrentpaymentid', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'tid');
+
+        // Conditionally launch add field recurrentpaymentid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Cielo savepoint reached.
+        upgrade_plugin_savepoint(true, 2021070503, 'enrol', 'cielo');
+    }
     return true;
 }

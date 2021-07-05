@@ -18,17 +18,15 @@
  * cielo enrolment plugin version specification.
  *
  * @package    enrol_cielo
- * @copyright  2010 Eugene Venter
- * @copyright  2015 Daniel Neis Araujo
- * @author     Eugene Venter
- * @author     Daniel Neis Araujo <danielneis@gmail.com>
+ * @copyright  2021 Igor Agatti Lima
+ * @author     Igor Agatti Lima <igor@igoragatti.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2021041400;
+$plugin->version   = 2021070503;
 $plugin->requires  = 2018120300;
-$plugin->release   = '22';
+$plugin->release   = '23';
 $plugin->component = 'enrol_cielo';
 $plugin->maturity  = MATURITY_STABLE;

@@ -23,10 +23,7 @@
  * user.
  *
  * @package    enrol_cielo
- * @copyright  2010 Eugene Venter
- * @copyright  2015 Daniel Neis Araujo <danielneis@gmail.com>
- * @author     Eugene Venter - based on code by others
- * @author     Daniel Neis Araujo based on code by Eugene Venter and others
+ * @copyright  2021 Igor Agatti Lima <igor@igoragatti.com>
  * @author     Igor Agatti Lima based on code by Eugene Venter, Daniel Neis Araujo and others
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -43,6 +40,8 @@ require_login();
 
 define('SUCESSO', 4);
 define('SUCESSO2', 6);
+define('SUCESSO3', 0);
+define('SUCESSO4', '00');
 define('NAO_AUTORIZADO', 05);
 define('CARTAO_EXPIRADO', 57);
 define('CARTAO_BLOQUEADO', 78);
@@ -260,7 +259,7 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     
     $captureresponse = cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $merchantkey);
     
-    $rec = cielo_handlecaptureresponse(json_decode($captureresponse), $params['reference']);
+    $rec = cielo_handlecaptureresponse(json_decode($captureresponse), $params, $merchantid, $merchantkey);
     
     cielo_handleenrolment($rec, $params);
 
@@ -356,6 +355,7 @@ function cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl
     
     $params['logresponse'] = var_export($transactionresponse,true);
     $params['paymentid'] = $transactionresponse->Payment->PaymentId;
+    $params['recurrentpaymentid'] = $transactionresponse->Payment->RecurrentPayment->RecurrentPaymentId;
     
     $returncode = $transactionresponse->Payment->ReturnCode;
 
@@ -367,7 +367,7 @@ function cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl
     
     $captureresponse = cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $merchantkey);
     
-    $rec = cielo_handlecaptureresponse(json_decode($captureresponse), $params['reference']);
+    $rec = cielo_handlecaptureresponse(json_decode($captureresponse), $params, $merchantid, $merchantkey);
     
     cielo_handleenrolment($rec, $params);
 
@@ -598,6 +598,7 @@ function cielo_updateorder($params, $merchantid, $merchantkey) {
     $rec->userid = $USER->id;
     $rec->instanceid = $params['instanceid'];
     $rec->tid = $params['paymentid'] ?: null;
+    $rec->recurrentpaymentid = $params['recurrentpaymentid'] ?: null;
     $rec->date = date("Y-m-d");
     $rec->payment_status = $params['payment_status'];
     $rec->request_string = $params['logresponse'];
@@ -613,19 +614,21 @@ function cielo_updateorder($params, $merchantid, $merchantkey) {
  *
  * @return string $id the record id of the updated record in the database
  */
-function cielo_handlecaptureresponse($data, $reference) {
+function cielo_handlecaptureresponse($data, $params, $merchantid, $merchantkey) {
 
     global $DB;
     
     try{
         $rec = new stdClass();
-        $rec->id = $reference;
+        $rec->id = $params['reference'];
         $rec->status = intval($data->ReturnCode);
 
         switch($rec->status){
             case SUCESSO:
             case SUCESSO2:
-                $rec->payment_status = STATUS_SUCCESS;
+            case SUCESSO03:
+            case SUCESSO04:
+                $params['payment_status'] = STATUS_SUCCESS;
                 break;
             case NAO_AUTORIZADO:
             case CARTAO_EXPIRADO:
@@ -633,12 +636,12 @@ function cielo_handlecaptureresponse($data, $reference) {
             case TIME_OUT:
             case CARTAO_CANCELADO:
             case PROBLEMAS_COM_CARTAO:
-                $rec->payment_status = STATUS_FAILURE;
+                $params['payment_status'] = STATUS_FAILURE;
                 break;
 
         }
-
-        $DB->update_record("enrol_cielo", $rec);
+        
+        cielo_updateorder($params, $merchantid, $merchantkey);
 
         $record = $DB->get_record("enrol_cielo", ['id' => $rec->id]);
         if ($record->payment_status == STATUS_SUCCESS) {
@@ -647,6 +650,7 @@ function cielo_handlecaptureresponse($data, $reference) {
 
         return $record;
     }
+
     catch(Exception $e){
         $exceptionparam = new stdClass();
         $exceptionparam->message = $e->getMessage();
