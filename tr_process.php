@@ -777,7 +777,7 @@ function cielo_ccjson($params) {
        "MerchantOrderId":"'.$params['reference'].'",
        "Payment":{
          "Type":"CreditCard",
-         "Amount":'.$params['total'] .',
+         "Amount":'.($params['total'] * 100) .',
          "Installments":'.$params['cc_installment_quantity'].',
          "SoftDescriptor":"'.$params['desc'].'",
          "CreditCard":{
@@ -821,7 +821,7 @@ function cielo_boletojson($params) {
         "Payment":
         {  
             "Type":"Boleto",
-            "Amount":'.$params['total'] .',
+            "Amount":'.($params['total'] * 100) .',
             "Provider":"Bradesco",
             "Address": "RUA SANTA CATARINA, Nº 220, Complemento: SALA 101, Bairro: COMERCIARIO, CEP: 88802260, Cidade: Criciúma, Estado: Santa Catarina",
             "BoletoNumber": "'.$params['reference'].'",
@@ -847,7 +847,7 @@ function cielo_recurrentccjson($params) {
        "MerchantOrderId":"'.$params['reference'].'",
        "Payment":{
          "Type":"CreditCard",
-         "Amount":'.$params['total'] .',
+         "Amount":'. ($params['total'] * 100) .',
          "Installments": 1,
          "SoftDescriptor":"'.$params['desc'].'",
          "RecurrentPayment":{

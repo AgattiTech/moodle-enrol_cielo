@@ -60,11 +60,17 @@ if (get_config('enrol_cielo', 'usesandbox') == 1) {
     $queryurl = 'https://apiquery.cieloecommerce.cielo.com.br';
 }
 
+$myfile = fopen("/var/www/acodonto_m/enrol/cielo/logs/log_postnotif.txt", "a") or fopen("/var/www/acodonto_m/enrol/cielo/logs/log_postnotif.txt", "w") or die("Unable to open myfile!");
+$txt = var_export($_POST, true);
+$txt .= "\n ---------- \n";
+fwrite($myfile, $txt);
+fclose($myfile);
+    
 $key = optional_param('notificationCode', '', PARAM_RAW);
 $notificationtype = optional_param('notificationType', '', PARAM_RAW);
 
 $json = file_get_contents('php://input');
-$data = json_decode($json)
+$data = json_decode($json);
 
 cielo_notificationrequest($data, $merchantid, $merchantkey, $baseurl);
 
