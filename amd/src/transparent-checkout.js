@@ -174,36 +174,50 @@ require(['jquery'], function($){
         var re_ccvalid = /\d{2}\/\d{4}/gm;
         var re_ccNumber = /\d{4}(\s\d{4}){3}/gm;
         var re_cccvv = /\d{3}/gm;
+        var re_phone = /\(\d{2}\) (\d)?\d{4}-\d{4}/gm
+        
         if(!$( formId + ' input[name=ccbrand]:checked').val()){
             rtn = false;
             $(formId + " .ccBrand-error").html('Favor escolher bandeira do cartão');
         } else{
             $(formId + " .ccBrand-error").html('');
         }
+        
         if(!$(formId + " .ccName").val().trim()){
             rtn = false;
             $(formId + " .ccName-error").html('Favor preencher Nome corretamente');
         }else{
             $(formId + " .ccName-error").html('');
         }
+        
         if(!re_ccNumber.test($(formId + " .ccNumber").val().trim())){
             rtn = false;
             $(formId + " .ccNumber-error").html('Favor preencher Número do cartão corretamente');
         }else{
             $(formId + " .ccNumber-error").html('');
         }
+        
         if(!re_ccvalid.test($(formId + " .ccvalid").val().trim())){
             rtn = false;
             $(formId + " .ccvalid-error").html('Favor preencher Validade do cartão corretamente mm/aaaa');
         }else{
             $(formId + " .ccvalid-error").html('');
         }
+        
         if(!re_cccvv.test($(formId + " .cvv").val().trim())){
             rtn = false;
             $(formId + " .cvv-error").html('Favor preencher CVV corretamente');
         }else{
             $(formId + " .cvv-error").html('');
         }
+        
+        if(!re_phone.test($(formId + " .phone").val().trim())){
+            rtn = false;
+            $(formId + " .phone-error").html('Favor preencher telefone corretamente');
+        }else{
+            $(formId + " .phone-error").html('');
+        }
+        
         return rtn;
     }
 });
@@ -212,12 +226,13 @@ function createMasks(){
     require(['jquery', 'enrol_cielo/jqmask'], function($, jqmask){
         var ph_options = {
             onKeyPress: function(ph, e, field, ph_options){
-                var masks = ['(00) 0000-00009', '(00) 0 0000-0000'];
-                var mask = (ph.length > 14) ? masks[1] : masks [0];
-                $('.input-phone').mask(mask, ph_options);
+                var ph_masks = ['(00)0000-00009', '(00)00000-0000'];
+                var ph_mask = (ph.length > 10) ? ph_masks[1] : ph_masks[0];
+                
+                $('.input-phone').mask(ph_mask, ph_options);
             }
         };
-        $('.input-phone').mask("(00) 0000-0000", ph_options);
+        $('.input-phone').mask("(00) 0000-00009", ph_options);
         var options = {
             onKeyPress: function(doc, e, field, options){
                 var masks = ['000.000.000-009', '00.000.000/0000-00'];

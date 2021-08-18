@@ -74,6 +74,7 @@ $addresscidade = optional_param('cidade', '', PARAM_RAW);
 $addressuf = optional_param('uf', '', PARAM_RAW);
 $addresscomplemento = optional_param('complemento', '', PARAM_RAW);
 $addressnumero = optional_param('numero', '', PARAM_RAW);
+$userphone = optional_param('phone', '', PARAM_RAW);
 
 $instanceid = optional_param('instanceid','', PARAM_INT);
     
@@ -96,10 +97,14 @@ if($addressuf) {
     $USER->profile_field_uf = $addressuf;
 }
 if($addresscomplemento) {
-    $USER->profile_field_cpf = $addresscomplemento;
+    $USER->profile_field_complemento = $addresscomplemento;
 }
 if($addressnumero) {
     $USER->profile_field_numero = $addressnumero;
+}
+
+if($userphone) {
+    $USER->phone1 = $userphone;
 }
 
 profile_save_data($USER);
@@ -235,10 +240,10 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     $params['total'] = $total;
     $reqjson = cielo_ccjson($params);
     
-    $myfile = fopen("log_data.txt", "w") or die("Unable to open myfile!");
-    $txt = var_export($params, true);
-    fwrite($myfile, $txt);
-    fclose($myfile);
+//    $myfile = fopen("log_data.txt", "w") or die("Unable to open myfile!");
+//    $txt = var_export($params, true);
+//    fwrite($myfile, $txt);
+//    fclose($myfile);
 
     $url = $baseurl."/1/sales";
 
@@ -289,10 +294,10 @@ function cielo_boleto_checkout($params, $merchantid, $merchantkey, $baseurl) {
     
     $reqjson = cielo_boletojson($params);
     
-    $myfile = fopen("log_data.txt", "w") or die("Unable to open myfile!");
-    $txt = var_export($params, true);
-    fwrite($myfile, $txt);
-    fclose($myfile);
+//    $myfile = fopen("log_data.txt", "w") or die("Unable to open myfile!");
+//    $txt = var_export($params, true);
+//    fwrite($myfile, $txt);
+//    fclose($myfile);
 
     $url = $baseurl."/1/sales";
 
@@ -342,10 +347,10 @@ function cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl
     $params['total'] = $total;
     $reqjson = cielo_recurrentccjson($params);
     
-    $myfile = fopen("log_data.txt", "w") or die("Unable to open myfile!");
-    $txt = var_export($params, true);
-    fwrite($myfile, $txt);
-    fclose($myfile);
+//    $myfile = fopen("log_data.txt", "w") or die("Unable to open myfile!");
+//    $txt = var_export($params, true);
+//    fwrite($myfile, $txt);
+//    fclose($myfile);
 
     $url = $baseurl."/1/sales";
 
@@ -463,10 +468,10 @@ function cielo_sendboletoemail($params){
 function cielo_sendpaymentdetails($json, $url, $merchantid, $merchantkey) {
 
     $d = array($json,$url);
-    $myfile = fopen("log_req.txt", "w") or die("Unable to open myfile!");
-    $txt = var_export($d, true);
-    fwrite($myfile, $txt);
-    fclose($myfile);
+//    $myfile = fopen("log_req.txt", "w") or die("Unable to open myfile!");
+//    $txt = var_export($d, true);
+//    fwrite($myfile, $txt);
+//    fclose($myfile);
     
     $curl = curl_init();
 
@@ -491,10 +496,10 @@ function cielo_sendpaymentdetails($json, $url, $merchantid, $merchantkey) {
 
     curl_close($curl);
     
-    $myfile = fopen("log_res.txt", "w") or die("Unable to open myfile!");
-    $txt = var_export($data, true);
-    fwrite($myfile, $txt);
-    fclose($myfile);
+//    $myfile = fopen("log_res.txt", "w") or die("Unable to open myfile!");
+//    $txt = var_export($data, true);
+//    fwrite($myfile, $txt);
+//    fclose($myfile);
 
     return $data;
 
@@ -506,10 +511,10 @@ function cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $me
     
     $d = array($url, $transactionresponse);
     
-    $myfile = fopen("log_reqcapture.txt", "w") or die("Unable to open myfile!");
-    $txt = var_export($d, true);
-    fwrite($myfile, $txt);
-    fclose($myfile);
+//    $myfile = fopen("log_reqcapture.txt", "w") or die("Unable to open myfile!");
+//    $txt = var_export($d, true);
+//    fwrite($myfile, $txt);
+//    fclose($myfile);
     
     $curl = curl_init();
 
@@ -534,10 +539,10 @@ function cielo_captureccpayment($baseurl, $transactionresponse, $merchantid, $me
 
     curl_close($curl);
     
-    $myfile = fopen("log_rescapture.txt", "w") or die("Unable to open myfile!");
-    $txt = var_export($data, true);
-    fwrite($myfile, $txt);
-    fclose($myfile);
+//    $myfile = fopen("log_rescapture.txt", "w") or die("Unable to open myfile!");
+//    $txt = var_export($data, true);
+//    fwrite($myfile, $txt);
+//    fclose($myfile);
     
     return $data;
     
