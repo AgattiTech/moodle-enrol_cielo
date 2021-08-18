@@ -258,29 +258,31 @@ class enrol_cielo_plugin extends enrol_plugin {
                 $tcdata["installments"] = $installments;
                 $tcdata["fullname"] = "$USER->firstname $USER->lastname";
                 $tcdata["enrolboleto"] = $this->get_config('enrolboleto');
-                if ($USER->cpf) {
-                    $tcdata["cpf"] = $USER->cpf;
+                $tcdata["phone"] = $USER->phone1;
+
+                if ($USER->profile_field_cpf) {
+                    $tcdata["cpf"] = $USER->profile_field_cpf;
                 }
-                if ($USER->logradouro) {
-                    $tcdata["logradouro"] = $USER->logradouro;
+                if ($USER->profile_field_logradouro) {
+                    $tcdata["logradouro"] = $USER->profile_field_logradouro == '/' ? '' : $USER->profile_field_logradouro;
                 }
-                if ($USER->cep) {
-                    $tcdata["cep"] = $USER->cep;
+                if ($USER->profile_field_cep) {
+                    $tcdata["cep"] = $USER->profile_field_cep == '/' ? '' : $USER->profile_field_cep;
                 }
-                if ($USER->numero) {
-                    $tcdata["numero"] = $USER->numero;
+                if ($USER->profile_field_numero) {
+                    $tcdata["numero"] = $USER->profile_field_numero == '/' ? '' : $USER->profile_field_numero;
                 }
-                if ($USER->bairro) {
-                    $tcdata["bairro"] = $USER->bairro;
+                if ($USER->profile_field_bairro) {
+                    $tcdata["bairro"] = $USER->profile_field_bairro == '/' ? '' : $USER->profile_field_bairro;
                 }
-                if ($USER->cidade) {
-                    $tcdata["cidade"] = $USER->cidade;
+                if ($USER->profile_field_cidade) {
+                    $tcdata["cidade"] = $USER->profile_field_cidade == '/' ? '' : $USER->profile_field_cidade;
                 }
-                if ($USER->uf) {
-                    $tcdata["uf"] = $USER->uf;
+                if ($USER->profile_field_uf) {
+                    $tcdata["uf"] = $USER->profile_field_uf == '/' ? '' : $USER->profile_field_uf;
                 }
-                if ($USER->complemento) {
-                    $tcdata["complemento"] = $USER->complemento;
+                if ($USER->profile_field_complemento) {
+                    $tcdata["complemento"] = $USER->profile_field_complemento == '/' ? '' : $USER->profile_field_complemento;
                 }
                 $output = $OUTPUT->render_from_template("enrol_cielo/recurrentcheckout", $tcdata);
                 
@@ -308,29 +310,31 @@ class enrol_cielo_plugin extends enrol_plugin {
                 $tcdata["installments"] = $installments;
                 $tcdata["fullname"] = "$USER->firstname $USER->lastname";
                 $tcdata["enrolboleto"] = $this->get_config('enrolboleto');
-                if ($USER->cpf) {
-                    $tcdata["cpf"] = $USER->cpf;
+                $tcdata["phone"] = $USER->phone1;
+
+                if ($USER->profile_field_cpf) {
+                    $tcdata["cpf"] = $USER->profile_field_cpf;
                 }
-                if ($USER->logradouro) {
-                    $tcdata["logradouro"] = $USER->logradouro;
+                if ($USER->profile_field_logradouro) {
+                    $tcdata["logradouro"] = $USER->profile_field_logradouro == '/' ? '' : $USER->profile_field_logradouro;
                 }
-                if ($USER->cep) {
-                    $tcdata["cep"] = $USER->cep;
+                if ($USER->profile_field_cep) {
+                    $tcdata["cep"] = $USER->profile_field_cep == '/' ? '' : $USER->profile_field_cep;
                 }
-                if ($USER->numero) {
-                    $tcdata["numero"] = $USER->numero;
+                if ($USER->profile_field_numero) {
+                    $tcdata["numero"] = $USER->profile_field_numero == '/' ? '' : $USER->profile_field_numero;
                 }
-                if ($USER->bairro) {
-                    $tcdata["bairro"] = $USER->bairro;
+                if ($USER->profile_field_bairro) {
+                    $tcdata["bairro"] = $USER->profile_field_bairro == '/' ? '' : $USER->profile_field_bairro;
                 }
-                if ($USER->cidade) {
-                    $tcdata["cidade"] = $USER->cidade;
+                if ($USER->profile_field_cidade) {
+                    $tcdata["cidade"] = $USER->profile_field_cidade == '/' ? '' : $USER->profile_field_cidade;
                 }
-                if ($USER->uf) {
-                    $tcdata["uf"] = $USER->uf;
+                if ($USER->profile_field_uf) {
+                    $tcdata["uf"] = $USER->profile_field_uf == '/' ? '' : $USER->profile_field_uf;
                 }
-                if ($USER->complemento) {
-                    $tcdata["complemento"] = $USER->complemento;
+                if ($USER->profile_field_complemento) {
+                    $tcdata["complemento"] = $USER->profile_field_complemento == '/' ? '' : $USER->profile_field_complemento;
                 }
                 $output = $OUTPUT->render_from_template("enrol_cielo/transparentcheckout", $tcdata);
 
