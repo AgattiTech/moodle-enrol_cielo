@@ -26,6 +26,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot.'/user/profile/lib.php'); 
+
 /**
  * cielo enrolment plugin implementation.
  * @author  Eugene Venter - based on code by Martin Dougiamas and others
@@ -310,31 +312,37 @@ class enrol_cielo_plugin extends enrol_plugin {
                 $tcdata["installments"] = $installments;
                 $tcdata["fullname"] = "$USER->firstname $USER->lastname";
                 $tcdata["enrolboleto"] = $this->get_config('enrolboleto');
-                $tcdata["phone"] = $USER->phone1;
+                
+                
+                $u = $DB->get_record('user',['id' => $USER->id]);
 
-                if ($USER->profile_field_cpf) {
-                    $tcdata["cpf"] = $USER->profile_field_cpf;
+                profile_load_custom_fields($u);
+                
+                $tcdata["phone"] = $u->phone1;
+
+                if ($u->profile["cpf"]) {
+                    $tcdata["cpf"] = $u->profile["cpf"];
                 }
-                if ($USER->profile_field_logradouro) {
-                    $tcdata["logradouro"] = $USER->profile_field_logradouro == '/' ? '' : $USER->profile_field_logradouro;
+                if ($u->profile["logradouro"]) {
+                    $tcdata["logradouro"] = $u->profile["logradouro"] == '/' ? '' : $u->profile["logradouro"];
                 }
-                if ($USER->profile_field_cep) {
-                    $tcdata["cep"] = $USER->profile_field_cep == '/' ? '' : $USER->profile_field_cep;
+                if ($USER->profile["cep"]) {
+                    $tcdata["cep"] = $USER->profile["cep"] == '/' ? '' : $USER->profile["cep"];
                 }
-                if ($USER->profile_field_numero) {
-                    $tcdata["numero"] = $USER->profile_field_numero == '/' ? '' : $USER->profile_field_numero;
+                if ($USER->profile["numero"]) {
+                    $tcdata["numero"] = $USER->profile["numero"] == '/' ? '' : $USER->profile["numero"];
                 }
-                if ($USER->profile_field_bairro) {
-                    $tcdata["bairro"] = $USER->profile_field_bairro == '/' ? '' : $USER->profile_field_bairro;
+                if ($USER->profile["bairro"]) {
+                    $tcdata["bairro"] = $USER->profile["bairro"] == '/' ? '' : $USER->profile["bairro"];
                 }
-                if ($USER->profile_field_cidade) {
-                    $tcdata["cidade"] = $USER->profile_field_cidade == '/' ? '' : $USER->profile_field_cidade;
+                if ($USER->profile["cidade"]) {
+                    $tcdata["cidade"] = $USER->profile["cidade"] == '/' ? '' : $USER->profile["cidade"];
                 }
-                if ($USER->profile_field_uf) {
-                    $tcdata["uf"] = $USER->profile_field_uf == '/' ? '' : $USER->profile_field_uf;
+                if ($USER->profile["uf"]) {
+                    $tcdata["uf"] = $USER->profile["uf"] == '/' ? '' : $USER->profile["uf"];
                 }
-                if ($USER->profile_field_complemento) {
-                    $tcdata["complemento"] = $USER->profile_field_complemento == '/' ? '' : $USER->profile_field_complemento;
+                if ($USER->profile["complemento"]) {
+                    $tcdata["complemento"] = $USER->profile["complemento"] == '/' ? '' : $USER->profile["complemento"];
                 }
                 $output = $OUTPUT->render_from_template("enrol_cielo/transparentcheckout", $tcdata);
 
