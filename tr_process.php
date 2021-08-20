@@ -34,7 +34,7 @@ require_once($CFG->libdir.'/enrollib.php');
 require_once($CFG->libdir.'/externallib.php');
 require_once($CFG->dirroot.'/user/profile/lib.php');
 
-global $USER;
+global $DB, $USER;
 
 require_login();
 
@@ -104,7 +104,10 @@ if($addressnumero) {
 }
 
 if($userphone) {
-    $USER->phone1 = $userphone;
+    $u = new stdClass();
+    $u->id = $USER->id;
+    $u->phone1 = $userphone;
+    $DB->update_record('user', $u);
 }
 
 profile_save_data($USER);
