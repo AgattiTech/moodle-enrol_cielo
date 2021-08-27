@@ -248,7 +248,7 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     $params['total'] = $total;
     $reqjson = cielo_ccjson($params);
     
-//    $myfile = fopen("log_data.txt", "w") or die("Unable to open myfile!");
+//    $myfile = fopen($CGF->dirroot . "/enrol/cielo/logs/log_data.txt", "w") or die("Unable to open myfile!");
 //    $txt = var_export($params, true);
 //    fwrite($myfile, $txt);
 //    fclose($myfile);
@@ -450,16 +450,13 @@ function cielo_checkcoupon($params) {
 }
 
 function cielo_registercoupon(array $params) {
+    global $CFG;
     $args = array(
         'couponcode' => $params['couponcode'],
-        'instanceid' => $params['instanceid'],
-        'orderid' => $params['reference'],
+        'instanceid' => (int) $params['instanceid'],
+        'orderid' => (int) $params['reference'],
     );
-    if (external_api::call_external_function('enrol_coupon_register_order', $args)) {
-        return true;
-    } else {
-        return false;
-    }
+    $rtn = external_api::call_external_function('enrol_coupon_register_order', $args);
 }
 
 
