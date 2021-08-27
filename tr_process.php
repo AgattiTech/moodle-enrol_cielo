@@ -235,9 +235,14 @@ function cielo_cc_checkout($params, $merchantid, $merchantkey, $baseurl) {
     //TODO: Store paymentID
     // First we insert the order into the database, so the customer's info isn't lost.
     $extraamount = cielo_checkcoupon($params);
+    
     $params['extraamount'] = number_format($extraamount, 2);
     $refid = cielo_insertorder($params, $merchantid, $merchantkey);
     $params['reference'] = $refid;
+    
+    if($extraamount) {
+        cielo_registercoupon($params);
+    }
     
     $total = (float) $params['extraamount'] + (float) $params['amount'];
     $params['total'] = $total;
@@ -292,6 +297,10 @@ function cielo_boleto_checkout($params, $merchantid, $merchantkey, $baseurl) {
     $refid = cielo_insertorder($params, $merchantid, $merchantkey);
     $params['reference'] = $refid;
     
+    if($extraamount) {
+        cielo_registercoupon($params);
+    }
+    
     $total = (float) $params['extraamount'] + (float) $params['amount'];
     $params['total'] = $total;
     
@@ -345,6 +354,10 @@ function cielo_recurrentcc_checkout($params, $merchantid, $merchantkey, $baseurl
     $params['extraamount'] = number_format($extraamount, 2);
     $refid = cielo_insertorder($params, $merchantid, $merchantkey);
     $params['reference'] = $refid;
+    
+    if($extraamount) {
+        cielo_registercoupon($params);
+    }
     
     $total = (float) $params['extraamount'] + (float) $params['amount'];
     $params['total'] = $total;
@@ -433,6 +446,19 @@ function cielo_checkcoupon($params) {
         }
     } else {
         return 0;
+    }
+}
+
+function cielo_registercoupon(array $params) {
+    $args = array(
+        'couponcode' => $params['couponcode'],
+        'instanceid' => $params['instanceid'],
+        'orderid' => $params['reference'],
+    );
+    if (external_api::call_external_function('enrol_coupon_register_order', $args)) {
+        return true;
+    } else {
+        return false;
     }
 }
 
