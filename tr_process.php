@@ -117,16 +117,19 @@ $params = [];
 $params['paymentmethod'] = $paymentmethod;
 $params['instanceid'] = $instanceid;
 
+$courseid = optional_param('courseid', '0', PARAM_INT);
+$params['courseid'] = $courseid;
+
 $plugininstance = $DB->get_record('enrol', array('id' => $instanceid));
 
+$context = context_course::instance($params['courseid']);
+
+if(is_enrolled($context,null, '', true )) {
+    redirect(new moodle_url('/course/view.php', array('id' => $params['courseid'])));
+}
 if ($paymentmethod == 'cc') {
 
     // Build array with all parameters from the form.
-    
-
-    $courseid = optional_param('courseid', '0', PARAM_INT);
-
-    $params['courseid'] = $courseid;
 
     $params['couponcode'] = optional_param('cc_couponcode', '', PARAM_RAW);
 
@@ -158,10 +161,6 @@ if ($paymentmethod == 'cc') {
 
     // Build array with all parameters from the form.
 
-    $courseid = optional_param('courseid', '0', PARAM_INT);
-
-    $params['courseid'] = $courseid;
-
     $params['couponcode'] = optional_param('cc_couponcode', '', PARAM_RAW);
 
     // Continue building array of parameters from the form.
@@ -186,9 +185,6 @@ if ($paymentmethod == 'cc') {
     cielo_boleto_checkout($params, $merchantid, $merchantkey, $baseurl);
 
 } elseif ($paymentmethod == 'recurrentcc') {
-    $courseid = optional_param('courseid', '0', PARAM_INT);
-
-    $params['courseid'] = $courseid;
 
     $params['couponcode'] = optional_param('cc_couponcode', '', PARAM_RAW);
 
